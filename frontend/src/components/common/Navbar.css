@@ -1,0 +1,47 @@
+/* src/components/common/Navbar.css */
+
+.navbar {
+  height: 60px;
+  background-color: #1e293b;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 30px;
+}
+
+.navbar-brand a {
+  color: white;
+  font-size: 22px;
+  font-weight: bold;
+  text-decoration: none;
+}
+
+.navbar-menu {
+  display: flex;
+  gap: 25px;
+  list-style: none;
+}
+
+.navbar-menu a {
+  color: #cbd5e1;
+  text-decoration: none;
+  font-size: 16px;
+}
+
+.navbar-menu a:hover {
+  color: white;
+}
+
+.logout-btn {
+  background-color: #ef4444;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.logout-btn:hover {
+  background-color: #dc2626;
+}
