@@ -1,6 +1,7 @@
 import { useState } from "react";
 import "./App.css";
 import Navbar from "./components/common/Navbar.jsx";
+import Footer from "./components/common/Footer.jsx";
 
 function App() {
   const [count, setCount] = useState(0);
@@ -18,6 +19,7 @@ function App() {
           Count is {count}
         </button>
       </div>
+      <Footer />
     </>
   );
 }
