@@ -6,7 +6,7 @@ const Navbar = () => {
   return (
     <nav className="navbar">
       <div className="navbar-brand">
-        <Link to="/">ScholarStats</Link>
+        <Link to="/dashboard">ScholarStats</Link>
       </div>
 
       <ul className="navbar-menu">
@@ -28,7 +28,7 @@ const Navbar = () => {
       </ul>
 
       <div className="navbar-actions">
-        <button className="logout-btn">Logout</button>
+        <button className="logout-btn">Log out</button>
       </div>
     </nav>
   );
