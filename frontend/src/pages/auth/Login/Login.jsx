@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { User, Lock, Eye, EyeOff, LogIn, Info } from "lucide-react";
 import "../../../App.css";
+import "./Login.css";
 import Footer from "../../../components/common/Footer";
 
 function Login() {
@@ -42,87 +43,83 @@ function Login() {
 
   return (
     <div className="login-page">
-      <div className="login-card">
-        <div className="login-header">
-          <h1>ScholarStats</h1>
-          {/* <p>Student Result Analyzer Platform</p> */}
-        </div>
-
-        <div className="login-title">
-          <h2>User Login</h2>
-          {/* <p>Enter your credentials</p> */}
-        </div>
-
-        <form onSubmit={handleLogin} className="login-form">
-          <div className="form-group">
-            <label>Username / Email</label>
-            <div className="input-box">
-              <User size={20} />
-              <input
-                type="text"
-                placeholder="Enter username or email"
-                value={username}
-                onChange={(e) => {
-                  setUsername(e.target.value);
-                  setError("");
-                }}
-              />
-            </div>
+      <div className="login-body">
+        <div className="login-card">
+          <div className="login-header">
+            <h1>ScholarStats</h1>
+            <p>Pokhara University - Academic Portal</p>
           </div>
 
-          <div className="form-group">
-            <label>Password</label>
-            <div className="input-box">
-              <Lock size={20} />
-              <input
-                type={showPassword ? "text" : "password"}
-                placeholder="Enter your password"
-                value={password}
-                onChange={(e) => {
-                  setPassword(e.target.value);
-                  setError("");
-                }}
-              />
+          <div className="login-title">
+            <h2>User Login</h2>
+            {/* <p>Enter your credentials</p> */}
+          </div>
 
-              <button
-                type="button"
-                className="password-toggle"
-                onClick={() => setShowPassword(!showPassword)}
-              >
-                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+          <form onSubmit={handleLogin} className="login-form">
+            <div className="form-group">
+              <label>Username / Email</label>
+              <div className="input-box">
+                <User size={20} />
+                <input
+                  type="text"
+                  placeholder="Enter username or email"
+                  value={username}
+                  onChange={(e) => {
+                    setUsername(e.target.value);
+                    setError("");
+                  }}
+                />
+              </div>
+            </div>
+
+            <div className="form-group">
+              <label>Password</label>
+              <div className="input-box">
+                <Lock size={20} />
+                <input
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Enter your password"
+                  value={password}
+                  onChange={(e) => {
+                    setPassword(e.target.value);
+                    setError("");
+                  }}
+                />
+
+                <button
+                  type="button"
+                  className="password-toggle"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                </button>
+              </div>
+            </div>
+
+            <div className="login-options">
+              <label className="remember-me">
+                <input
+                  type="checkbox"
+                  checked={rememberMe}
+                  onChange={(e) => setRememberMe(e.target.checked)}
+                />
+                <span>Remember me</span>
+              </label>
+
+              <button type="button" className="forgot-password">
+                Forgot Password?
               </button>
             </div>
-          </div>
 
-          <div className="login-options">
-            <label className="remember-me">
-              <input
-                type="checkbox"
-                checked={rememberMe}
-                onChange={(e) => setRememberMe(e.target.checked)}
-              />
-              <span>Remember me</span>
-            </label>
+            {error && <p className="login-error">{error}</p>}
 
-            <button type="button" className="forgot-password">
-              Forgot Password?
+            <button type="submit" className="login-button">
+              Log in
             </button>
-          </div>
-
-          {error && <p className="login-error">{error}</p>}
-
-          <button type="submit" className="login-button">
-            Log in
-          </button>
-        </form>
-
-        
+          </form>
+        </div>
+        <Footer />
       </div>
-      <Footer />
-
-      {/* <p className="login-footer">
-        © 2026 ScholarStats. All rights reserved.
-      </p> */}
     </div>
   );
 }

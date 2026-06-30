@@ -9,18 +9,6 @@ function App() {
 
   return (
     <>
-      {/* 
-      <div id="center">
-        <h1>Welcome to React</h1>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </div>
-      <Footer /> */}
       <Routes>
         <Route path="/" element={<Navigate to="/login" />} />
         <Route path="/login" element={<Login />} />
