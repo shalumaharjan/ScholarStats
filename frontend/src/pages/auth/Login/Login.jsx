@@ -62,7 +62,7 @@ function Login() {
                 <User size={20} />
                 <input
                   type="text"
-                  placeholder="Enter username or email"
+                  placeholder="username"
                   value={username}
                   onChange={(e) => {
                     setUsername(e.target.value);
@@ -78,7 +78,7 @@ function Login() {
                 <Lock size={20} />
                 <input
                   type={showPassword ? "text" : "password"}
-                  placeholder="Enter your password"
+                  placeholder="**************"
                   value={password}
                   onChange={(e) => {
                     setPassword(e.target.value);
