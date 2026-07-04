@@ -239,7 +239,7 @@ function Dashboard() {
         <aside
           className={`${
             isSidebarCollapsed ? "w-20 px-3" : "w-64 px-5"
-          } bg-[#0b2c63] text-white py-6 hidden lg:flex flex-col transition-all duration-300`}
+          } sticky top-0 h-screen shrink-0 overflow-y-auto bg-[#0b2c63] text-white py-6 hidden lg:flex flex-col transition-all duration-300`}
         >
           <div
             className={`flex items-center ${
@@ -301,7 +301,7 @@ function Dashboard() {
           </button>
         </aside>
 
-        <main className="flex-1">
+        <main className="flex-1 min-w-0">
           <header className="h-16 bg-white border-b border-gray-200 px-5 lg:px-8 flex items-center justify-between">
             <div className="flex items-center gap-4">
               <button
