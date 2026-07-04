@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Eye, EyeOff, Lock, LogIn, User } from "lucide-react";
+import { toast } from "react-toastify";
 
 function Login() {
   const navigate = useNavigate();
@@ -8,27 +9,31 @@ function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState("");
 
   const handleLogin = (event) => {
     event.preventDefault();
 
     if (!username.trim()) {
-      setError("Username or email is required.");
+      toast.warning("Username or email is required.");
       return;
     }
 
     if (!password.trim()) {
-      setError("Password is required.");
+      toast.warning("Password is required.");
       return;
     }
 
     if (username === "admin" && password === "admin123") {
       localStorage.setItem("isLoggedIn", "true");
       localStorage.setItem("username", username);
-      navigate("/dashboard");
+
+      toast.success("Login successful! Welcome to ScholarStats.");
+
+      setTimeout(() => {
+        navigate("/dashboard");
+      }, 1000);
     } else {
-      setError("Invalid username or password.");
+      toast.error("Invalid username or password.");
     }
   };
 
@@ -71,7 +76,6 @@ function Login() {
                   value={username}
                   onChange={(event) => {
                     setUsername(event.target.value);
-                    setError("");
                   }}
                   className="w-full outline-none text-sm text-gray-800 placeholder:text-gray-400"
                 />
@@ -92,7 +96,6 @@ function Login() {
                   value={password}
                   onChange={(event) => {
                     setPassword(event.target.value);
-                    setError("");
                   }}
                   className="w-full outline-none text-sm text-gray-800 placeholder:text-gray-400"
                 />
@@ -123,12 +126,6 @@ function Login() {
                 Forgot password?
               </button> */}
             </div>
-
-            {error && (
-              <div className="rounded-lg bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700">
-                {error}
-              </div>
-            )}
 
             <button
               type="submit"
