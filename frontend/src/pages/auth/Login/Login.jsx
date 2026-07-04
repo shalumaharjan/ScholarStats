@@ -42,7 +42,7 @@ function Login() {
             </h1>
 
             <p className="font-voces mt-2 text-sm text-secondary">
-              Department Result Analysis System
+              Academic Result Analyzer
             </p>
           </div>
 
