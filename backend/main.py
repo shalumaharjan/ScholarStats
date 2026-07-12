@@ -10,7 +10,7 @@ from bot.scraper import scrape_result
 
 def run_from_excel(file_path):
     # Read Excel file
-    df = pd.read_excel(file_path, parse_dates=["dob"])
+    df = pd.read_excel(file_path)
     results = []
 
     # Start browser once (faster)
@@ -19,12 +19,14 @@ def run_from_excel(file_path):
     try:
         for _, row in df.iterrows():
 
-            # Handle missing DOB safely
-            if pd.notna(row["dob"]):
-                dob = pd.to_datetime(row["dob"]).strftime("%d/%m/%Y")
-            else:
-                print(f"❌ Invalid DOB for {row['symbol_no']}")
+            # ✅ FIXED INDENTATION
+            dob = pd.to_datetime(row["dob"], errors="coerce", dayfirst=True)
+
+            if pd.isna(dob):
+                print(f"Invalid DOB found: {row['dob']}")
                 continue
+
+            dob = dob.strftime("%d/%m/%Y")
 
             student = {
                 "symbol_no": str(row["symbol_no"]),
@@ -53,7 +55,6 @@ def run_from_excel(file_path):
                 print(f"⚠ Error processing {student['symbol_no']}: {e}")
 
     finally:
-        
         input("⏸ Press ENTER to close browser...")
         driver.quit()
 
@@ -74,22 +75,21 @@ if __name__ == "__main__":
     for result in output:
         print(result)
 
-    # Save JSON (optional)
+    # Save JSON
     with open("data/output/results.json", "w") as f:
         json.dump(output, f, indent=4)
 
     print("📁 JSON saved: data/output/results.json")
 
-    # ✅ Convert to Excel (MAIN OUTPUT)
+    # ✅ Convert to Excel
     flat_data = []
 
     for result in output:
         row = {"symbol_no": result["symbol_no"]}
-        row.update(result["data"])  # subject + percentage
+        row.update(result["data"])
         flat_data.append(row)
 
     df = pd.DataFrame(flat_data)
-
     df.to_excel("data/output/results.xlsx", index=False)
 
     print("📊 Excel saved: data/output/results.xlsx")
