@@ -20,14 +20,13 @@ function Navbar({ title, subtitle, onToggleSidebar }) {
         </div>
       </div>
 
-      <div className="flex items-center gap-3">
+      <div className="flex cursor-pointer items-center gap-3 rounded-xl px-2 py-1 transition hover:bg-gray-100">
         <UserCircle size={36} className="text-primary" />
-
         <div className="hidden sm:block">
           <p className="text-sm font-bold text-gray-900">Admin</p>
           <p className="font-voces text-xs text-secondary">Administrator</p>
         </div>
-      </div>
+    </div>
     </header>
   );
 }

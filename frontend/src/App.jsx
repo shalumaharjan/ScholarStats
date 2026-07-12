@@ -5,6 +5,8 @@ import "react-toastify/dist/ReactToastify.css";
 import Login from "./pages/auth/Login/Login";
 import Dashboard from "./pages/Dashboard";
 import StudentFiles from "./pages/StudentFiles";
+import FetchResult from "./pages/FetchResult";
+import FetchStatus from "./pages/FetchStatus";
 
 function App() {
   return (
@@ -14,6 +16,8 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/student-files" element={<StudentFiles />} />
+        <Route path="/fetch-result" element={<FetchResult />} />
+        <Route path="/fetch-status" element={<FetchStatus />} />
       </Routes>
 
       <ToastContainer
