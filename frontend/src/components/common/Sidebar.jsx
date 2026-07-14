@@ -88,7 +88,7 @@ function Sidebar({ isSidebarCollapsed }) {
         })}
       </nav>
 
-      <button
+      {/* <button
         onClick={handleLogout}
         title={isSidebarCollapsed ? "Logout" : ""}
         className={`mt-auto flex items-center rounded-xl py-3 text-sm font-semibold text-blue-100 transition hover:bg-white/10 ${
@@ -98,7 +98,7 @@ function Sidebar({ isSidebarCollapsed }) {
         <LogOut size={19} />
 
         {!isSidebarCollapsed && <span>Logout</span>}
-      </button>
+      </button> */}
     </aside>
   );
 }
