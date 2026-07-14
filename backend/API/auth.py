@@ -1,79 +1,54 @@
-from fastapi import FastAPI, HTTPException, Depends
-from jose import jwt
-from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
-from datetime import datetime, timedelta, timezone
+from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy.orm import Session
 from passlib.context import CryptContext
+import hashlib
 
-app = FastAPI()
+from database import SessionLocal
+from models import User
+from schemas import UserCreate
 
-# JWT config
-SECRET_KEY = "mysecret"
-ALGORITHM = 'HS256'
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
-
-# Password hashing setup
+router = APIRouter()
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-# oauth setup
-oauth2_schema = OAuth2PasswordBearer(tokenUrl="login")
-
-# Dummy user DB
-fake_user_db = {
-    "admin": {
-        "username": "admin",
-        "hashed_password": pwd_context.hash("admin123")
-    }
-}
-
-# hash Password
-def hash_password(password: str):
-    return pwd_context.hash(password)
-
-# verify password
-def verify_password(plain_password, hashed_password):
-    return pwd_context.verify(plain_password, hashed_password)
-
-# Create token
-def create_token(data: dict):
-    to_encode = data.copy()
-    expire = datetime.now(timezone.utc) + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    to_encode.update({"exp": expire})
-    token = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
-    return token
-
-# Login API
-@app.post("/login")
-def login(form_data: OAuth2PasswordRequestForm = Depends()):
-    user = fake_user_db.get(form_data.username)
-
-    if not user or not verify_password(form_data.password, user['hashed_password']):
-        raise HTTPException(status_code=400, detail="Invalid username or password")
-
-    access_token = create_token({"sub": form_data.username})
-
-    return {
-        "access_token": access_token,
-        "token_type": "bearer"
-    }
-
-# Token verify
-def verify_token(token: str = Depends(oauth2_schema)):
+# DB dependency
+def get_db():
+    db = SessionLocal()
     try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        username: str = payload.get("sub")
+        yield db
+    finally:
+        db.close()
 
-        if username is None:
-            raise HTTPException(status_code=401, detail="Invalid token")
+# ---- password helpers (avoid bcrypt 72-byte limit) ----
+def _prehash(password: str) -> str:
+    return hashlib.sha256(password.encode()).hexdigest()
 
-        return username
+def hash_password(password: str) -> str:
+    return pwd_context.hash(_prehash(password))
 
-    except jwt.JWTError:
-        raise HTTPException(status_code=401, detail="Invalid Token")
+def verify_password(password: str, hashed: str) -> bool:
+    return pwd_context.verify(_prehash(password), hashed)
 
-# Protected Route
-@app.get("/protected")
-def protected_route(username: str = Depends(verify_token)):
-    return {
-        "message": "Hello you have access to this protected route!",
-        "user": username
-    }
+# ---- routes ----
+@router.post("/register")
+def register(user: UserCreate, db: Session = Depends(get_db)):
+    existing = db.query(User).filter(User.username == user.username).first()
+    if existing:
+        raise HTTPException(status_code=400, detail="User already exists")
+
+    new_user = User(
+        username=user.username,
+        hashed_password=hash_password(user.password),
+    )
+    db.add(new_user)
+    db.commit()
+    db.refresh(new_user)
+
+    return {"message": "User created"}
+
+@router.post("/login")
+def login(user: UserCreate, db: Session = Depends(get_db)):
+    db_user = db.query(User).filter(User.username == user.username).first()
+    if not db_user or not verify_password(user.password, db_user.hashed_password):
+        raise HTTPException(status_code=400, detail="Invalid credentials")
+
+    return {"message": "Login successful"}
