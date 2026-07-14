@@ -28,6 +28,8 @@ function Sidebar({ isSidebarCollapsed }) {
   const handleLogout = () => {
     localStorage.removeItem("isLoggedIn");
     localStorage.removeItem("username");
+    sessionStorage.removeItem("isLoggedIn");
+    sessionStorage.removeItem("username");
     navigate("/login");
   };
 

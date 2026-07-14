@@ -9,6 +9,7 @@ function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
 
   const handleLogin = (event) => {
     event.preventDefault();
@@ -24,16 +25,25 @@ function Login() {
     }
 
     if (username === "admin" && password === "admin123") {
-      localStorage.setItem("isLoggedIn", "true");
-      localStorage.setItem("username", username);
+      // Clear old login data
+      localStorage.removeItem("isLoggedIn");
+      localStorage.removeItem("username");
+      sessionStorage.removeItem("isLoggedIn");
+      sessionStorage.removeItem("username");
+
+      if (rememberMe) {
+        localStorage.setItem("isLoggedIn", "true");
+        localStorage.setItem("username", username);
+      } else {
+        sessionStorage.setItem("isLoggedIn", "true");
+        sessionStorage.setItem("username", username);
+      }
 
       toast.success("Login successful! Welcome to ScholarStats.");
 
       setTimeout(() => {
         navigate("/dashboard");
-      }, 1000);
-    } else {
-      toast.error("Invalid username or password.");
+      }, 2000);
     }
   };
 
@@ -114,6 +124,8 @@ function Login() {
               <label className="flex items-center gap-2 text-secondary">
                 <input
                   type="checkbox"
+                  checked={rememberMe}
+                  onChange={(e) => setRememberMe(e.target.checked)}
                   className="h-4 w-4 rounded border-gray-300 accent-primary"
                 />
                 Remember me
