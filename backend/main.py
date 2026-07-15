@@ -102,7 +102,7 @@ if __name__ == "__main__":
 
     for result in output:
         row = {"symbol_no": result["symbol_no"]}
-        row.update(result["data"])
+        row.update(result["data"])  
         flat_data.append(row)
 
     df = pd.DataFrame(flat_data)
