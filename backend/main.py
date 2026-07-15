@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+
 from fastapi import FastAPI
 from routes import auth, student_files, fetch_jobs, analysis, dashboard
 
@@ -109,4 +109,4 @@ if __name__ == "__main__":
     df.to_excel("data/output/results.xlsx", index=False)
 
     print("📊 Excel saved: data/output/results.xlsx")
->>>>>>> 62170f56af6b521a60ef89887ace82b70fa05f3b
+
