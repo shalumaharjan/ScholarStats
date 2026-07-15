@@ -8,18 +8,13 @@ from io import StringIO
 import pandas as pd
 import time
 
-
 class ResultFetcher:
-
     def __init__(self, headless=False):
         self.driver = None
         self.setup_driver(headless)
 
-
     def setup_driver(self, headless):
-
         options = Options()
-
         if headless:
             options.add_argument("--headless=new")
 
@@ -27,25 +22,14 @@ class ResultFetcher:
         options.add_argument("--disable-dev-shm-usage")
         options.add_argument("--window-size=1920,1080")
 
-        self.driver = webdriver.Chrome(
-            options=options
-        )
+        self.driver = webdriver.Chrome(options=options)
 
-        self.wait = WebDriverWait(
-            self.driver,
-            20
-        )
-
+        self.wait = WebDriverWait(self.driver,20)
 
     def fetch_result(self, student):
         try:
-            print(
-                f"\n🔎 Checking ERN: {student['ern']}"
-            )
-
-            self.driver.get(
-                "https://exam.pu.edu.np:9094/"
-            )
+            print(f"\n🔎 Checking ERN: {student['ern']}")
+            self.driver.get("https://exam.pu.edu.np:9094/")
 
             self.wait.until(
                 EC.presence_of_element_located(
@@ -59,10 +43,7 @@ class ResultFetcher:
                     By.ID,
                     "Exam_Type"
                 )
-            ).select_by_value(
-                student["exam_type"]
-            )
-
+            ).select_by_value(student["exam_type"])
 
             # Year
             Select(
@@ -70,10 +51,7 @@ class ResultFetcher:
                     By.ID,
                     "Year"
                 )
-            ).select_by_value(
-                student["year"]
-            )
-
+            ).select_by_value(student["year"])
 
             # Session
             Select(
@@ -81,10 +59,7 @@ class ResultFetcher:
                     By.ID,
                     "Academic_System"
                 )
-            ).select_by_value(
-                student["session"]
-            )
-
+            ).select_by_value(student["session"])
 
             # Semester
             Select(
@@ -92,10 +67,7 @@ class ResultFetcher:
                     By.ID,
                     "Semester"
                 )
-            ).select_by_value(
-                student["semester"]
-            )
-
+            ).select_by_value(student["semester"])
 
             # Program
             Select(
@@ -103,37 +75,25 @@ class ResultFetcher:
                     By.ID,
                     "Program"
                 )
-            ).select_by_visible_text(
-                student["program"]
-            )
-
+            ).select_by_visible_text(student["program"])
 
             # ERN / Symbol Number
             symbol = self.driver.find_element(
                 By.ID,
                 "Symbol_Number"
             )
-
             symbol.clear()
-
-            symbol.send_keys(
-                student["ern"]
-            )
-
+            symbol.send_keys(student["ern"])
 
             # DOB
             dob = self.driver.find_element(
                 By.ID,
                 "DOB"
             )
-
             dob.clear()
 
             # format MM-DD-YYYY
-            dob.send_keys(
-                student["dob"]
-            )
-
+            dob.send_keys(student["dob"])
             print("📤 Submitting result request...")
 
             self.driver.find_element(
@@ -144,27 +104,15 @@ class ResultFetcher:
             # wait for AJAX
             time.sleep(8)
             html = self.driver.page_source
-            tables = pd.read_html(
-                StringIO(html)
-            )
-
-
-            print(
-                "Tables found:",
-                len(tables)
-            )
+            tables = pd.read_html(StringIO(html))
+            print("Tables found:",len(tables))
             if len(tables) == 0:
-                print(
-                    "❌ No table found"
-                )
+                print("❌ No table found")
                 return None
 
             # Usually last table is result
             result = tables[-1]
-            print(
-                result.head()
-            )
-
+            print(result.head())
 
             # Clean column names
             result.columns = [
@@ -174,19 +122,12 @@ class ResultFetcher:
 
             # Rename actual portal columns
             rename_map = {
-                "Object Oriented Programming using Java":
-                    "OOP",
-                "Data Structure and Algorithms":
-                    "DSA",
-                "System Analysis and Project Management":
-                    "SAPM",
-                "Web Technologies I":
-                    "WT-I",
-                "Operating System":
-                    "OS",
-                "Semester GPA":
-                    "SGPA"
-
+                "Object Oriented Programming using Java":"OOP",
+                "Data Structure and Algorithms":"DSA",
+                "System Analysis and Project Management":"SAPM",
+                "Web Technologies I":"WT-I",
+                "Operating System":"OS",
+                "Semester GPA":"SGPA"
             }
             result.rename(
                 columns=rename_map,
@@ -210,7 +151,6 @@ class ResultFetcher:
                 "WT-I",
                 "OS",
                 "SGPA"
-
             ]
 
             available = [
@@ -228,9 +168,7 @@ class ResultFetcher:
                 "Operating System": "OS"
             }
             result["Course Title"] = result["Course Title"].str.strip()
-            result["Course Title"] = result["Course Title"].replace(
-                subject_map
-            )
+            result["Course Title"] = result["Course Title"].replace(subject_map)
 
             # Convert rows to columns
             result = result.pivot_table(
@@ -247,34 +185,18 @@ class ResultFetcher:
                 student["ern"]
             )
 
-
-
             # Calculate SGPA if portal provides it later
-
             result["SGPA"] = ""
-
-
-            print(
-                f"✅ Completed {student['ern']}"
-            )
-
-
+            print(f"✅ Completed {student['ern']}")
             return result
 
-
         except Exception as e:
-            print(
-                f"❌ Error {student['ern']}: {e}"
-            )
+            print( f"❌ Error {student['ern']}: {e}")
             return None
 
-
     def close(self):
-
         if self.driver:
-
             self.driver.quit()
-
 
 def main():
     students = [
@@ -306,29 +228,18 @@ def main():
             "program":
                 "Bachelor of Computer Application"
         }
-
     ]
-
-
-
-    fetcher = ResultFetcher(
-        headless=False
-    )
-
+    fetcher = ResultFetcher(headless=False)
     all_results = []
 
-
     for student in students:
-        result = fetcher.fetch_result(
-            student
-        )
+        result = fetcher.fetch_result(student)
         if result is not None:
             all_results.append(
                 result
             )
 
     fetcher.close()
-
     if all_results:
         final = pd.concat(
             all_results,
@@ -338,15 +249,10 @@ def main():
             "student_results.xlsx",
             index=False
         )
-        print(
-            "\n📁 Saved student_results.xlsx"
-        )
+        print("\n📁 Saved student_results.xlsx")
         print(final)
     else:
-        print(
-            "❌ No results collected"
-        )
+        print("❌ No results collected")
 
 if __name__ == "__main__":
-
     main()

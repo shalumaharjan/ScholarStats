@@ -44,7 +44,6 @@ class HeadlessResultChecker:
     def check_result(self, student_data):
         """
         Check results with headless browser
-        
         student_data = {
             'symbol_no': '123456',
             'dob': '2000-01-15',
