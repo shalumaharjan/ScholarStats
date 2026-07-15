@@ -3,9 +3,9 @@ from sqlalchemy.orm import Session
 from passlib.context import CryptContext
 import hashlib
 
-from database import SessionLocal
-from models import User
-from schemas import UserCreate
+from .database import SessionLocal
+from .models import User
+from .schemas import UserCreate
 
 router = APIRouter()
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
