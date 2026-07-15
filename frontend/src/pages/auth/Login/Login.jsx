@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Eye, EyeOff, Lock, LogIn, User } from "lucide-react";
 import { toast } from "react-toastify";
+import { login } from "../../../utils/authService";
 
 function Login() {
   const navigate = useNavigate();
@@ -11,7 +12,7 @@ function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
 
-  const handleLogin = (event) => {
+  const handleLogin = async (event) => {
     event.preventDefault();
 
     if (!username.trim()) {
@@ -24,26 +25,21 @@ function Login() {
       return;
     }
 
-    if (username === "admin" && password === "admin123") {
-      // Clear old login data
-      localStorage.removeItem("isLoggedIn");
-      localStorage.removeItem("username");
-      sessionStorage.removeItem("isLoggedIn");
-      sessionStorage.removeItem("username");
+    try {
+      const data = await login(username, password);
 
-      if (rememberMe) {
-        localStorage.setItem("isLoggedIn", "true");
-        localStorage.setItem("username", username);
-      } else {
-        sessionStorage.setItem("isLoggedIn", "true");
-        sessionStorage.setItem("username", username);
-      }
+      localStorage.setItem("isLoggedIn", "true");
+      localStorage.setItem("username", username);
 
-      toast.success("Login successful! Welcome to ScholarStats.");
+      toast.success(data.message);
 
       setTimeout(() => {
         navigate("/dashboard");
-      }, 2000);
+      }, 1000);
+    } catch (error) {
+      toast.error(
+        error.response?.data?.detail || "Invalid username or password.",
+      );
     }
   };
 
