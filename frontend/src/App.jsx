@@ -1,23 +1,34 @@
-import { useState } from "react";
-import "./App.css";
-import Navbar from "./components/common/Navbar.jsx";
+import { Navigate, Route, Routes } from "react-router-dom";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
+import Login from "./pages/auth/Login/Login";
+import Dashboard from "./pages/Dashboard";
+import StudentFiles from "./pages/StudentFiles";
+import FetchResult from "./pages/FetchResult";
+import FetchStatus from "./pages/FetchStatus";
 
 function App() {
-  const [count, setCount] = useState(0);
-
   return (
     <>
-      <Navbar />
-      <div id="center">
-        <h1>Welcome to React</h1>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </div>
+      <Routes>
+        <Route path="/" element={<Navigate to="/login" />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/student-files" element={<StudentFiles />} />
+        <Route path="/fetch-result" element={<FetchResult />} />
+        <Route path="/fetch-status" element={<FetchStatus />} />
+      </Routes>
+
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop
+        closeOnClick
+        pauseOnHover
+        theme="light"
+      />
     </>
   );
 }
