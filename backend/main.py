@@ -1,6 +1,7 @@
 
 
 from fastapi import FastAPI
+
 from routes import auth, student_files, fetch_jobs, analysis, dashboard
 
 app = FastAPI(title="ScholarStats API")
@@ -14,6 +15,8 @@ app.include_router(dashboard.router)
 @app.get("/")
 def home():
     return {"message": "Welcome to ScholarStats API"}
+
+
 
 
 import json
