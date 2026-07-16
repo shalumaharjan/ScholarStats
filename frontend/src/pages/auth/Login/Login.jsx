@@ -27,14 +27,6 @@ function Login() {
 
     try {
       const data = await login(username, password);
-
-      if (rememberMe) {
-        localStorage.setItem("token", data.access_token);
-        localStorage.setItem("username", username);
-      } else {
-        sessionStorage.setItem("token", data.access_token);
-        sessionStorage.setItem("username", username);
-      }
       toast.success("Login successful! Welcome to ScholarStats.");
 
       setTimeout(() => {
