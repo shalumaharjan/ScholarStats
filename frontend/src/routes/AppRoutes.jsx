@@ -14,13 +14,15 @@ function AppRoutes() {
       <Routes>
         <Route path="/" element={<Navigate to="/login" />} />
         <Route path="/login" element={<Login />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/student-files" element={<StudentFiles />} />
-        <Route path="/fetch-result" element={<FetchResult />} />
-        <Route path="/fetch-status" element={<FetchStatus />} />
-        <Route path="/upload-report" element={<UnderConstruction />} />
-        <Route path="/semester-analysis" element={<UnderConstruction />} />
-        <Route path="/reports" element={<UnderConstruction />} />
+        <Route element={<ProtectedLayout />}>
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/student-files" element={<StudentFiles />} />
+          <Route path="/fetch-result" element={<FetchResult />} />
+          <Route path="/fetch-status" element={<FetchStatus />} />
+          <Route path="/upload-report" element={<UnderConstruction />} />
+          <Route path="/semester-analysis" element={<UnderConstruction />} />
+          <Route path="/reports" element={<UnderConstruction />} />
+        </Route>
         <Route path="*" element={<NotFound />} />
       </Routes>
     </>
