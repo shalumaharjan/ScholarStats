@@ -1,7 +1,0 @@
-from pydantic import BaseModel
-
-
-class Student(BaseModel):
-    name: str
-    gpa: float
-    result: str
