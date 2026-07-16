@@ -10,7 +10,7 @@ function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [rememberMe, setRememberMe] = useState(false);
+  // const [rememberMe, setRememberMe] = useState(false);
 
   const handleLogin = async (event) => {
     event.preventDefault();
@@ -112,7 +112,7 @@ function Login() {
               </div>
             </div>
 
-            <div className="flex items-center justify-between text-sm">
+            {/* <div className="flex items-center justify-between text-sm">
               <label className="flex items-center gap-2 text-secondary">
                 <input
                   type="checkbox"
@@ -121,15 +121,15 @@ function Login() {
                   className="h-4 w-4 rounded border-gray-300 accent-primary"
                 />
                 Remember me
-              </label>
+              </label> */}
 
-              {/* <button
+            {/* <button
                 type="button"
                 className="font-bold text-primary hover:underline"
               >
                 Forgot password?
               </button> */}
-            </div>
+            {/* </div> */}
 
             <button
               type="submit"
