@@ -1,4 +1,7 @@
-def parse_student_table(markdown):
+import re
+
+
+def parse_markdown_table(markdown):
 
     students = []
 
@@ -6,33 +9,25 @@ def parse_student_table(markdown):
 
     for line in lines:
 
-        # Skip non-table lines
-        if "|" not in line:
-            continue
-
-        # Skip header
+        # skip header
         if "Roll No" in line:
             continue
 
-        # Skip separator
         if "---" in line:
             continue
 
-        columns = [
-            col.strip()
-            for col in line.split("|")
-            if col.strip()
-        ]
+        parts = line.split("|")
 
-        if len(columns) == 4:
+        if len(parts) >= 5:
 
             student = {
-                "roll_no": int(columns[0]),
-                "name": columns[1],
-                "gpa": float(columns[2]),
-                "status": columns[3]
+                "Roll No": parts[1].strip(),
+                "Name": parts[2].strip(),
+                "GPA": parts[3].strip(),
+                "Status": parts[4].strip()
             }
 
             students.append(student)
+
 
     return students

@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+
 
 from fastapi import FastAPI
 from routes import auth, student_files, fetch_jobs, analysis, dashboard
@@ -14,9 +14,8 @@ app.include_router(dashboard.router)
 @app.get("/")
 def home():
     return {"message": "Welcome to ScholarStats API"}
-=======
-=======
->>>>>>> 231430ba26f781c9b4ba9a96f38ab51529a5af0f
+
+
 import json
 import pandas as pd
 import os
@@ -112,7 +111,5 @@ if __name__ == "__main__":
     df.to_excel("data/output/results.xlsx", index=False)
 
     print("📊 Excel saved: data/output/results.xlsx")
-<<<<<<< HEAD
 
-=======
->>>>>>> 231430ba26f781c9b4ba9a96f38ab51529a5af0f
+
