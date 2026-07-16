@@ -5,8 +5,8 @@ import Dashboard from "../pages/Dashboard";
 import StudentFiles from "../pages/StudentFiles";
 import FetchResult from "../pages/FetchResult";
 import FetchStatus from "../pages/FetchStatus";
-import NotFound from "../notFound/notFound";
-import UnderConstruction from "../underConstruction/underConstruction";
+import UnderConstruction from "../pages/UnderConstruction";
+import NotFound from "../pages/NotFound";
 
 function AppRoutes() {
   return (
