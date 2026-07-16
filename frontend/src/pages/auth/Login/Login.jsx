@@ -28,14 +28,18 @@ function Login() {
     try {
       const data = await login(username, password);
 
-      localStorage.setItem("isLoggedIn", "true");
-      localStorage.setItem("username", username);
-
-      toast.success(data.message);
+      if (rememberMe) {
+        localStorage.setItem("token", data.access_token);
+        localStorage.setItem("username", username);
+      } else {
+        sessionStorage.setItem("token", data.access_token);
+        sessionStorage.setItem("username", username);
+      }
+      toast.success("Login successful! Welcome to ScholarStats.");
 
       setTimeout(() => {
         navigate("/dashboard");
-      }, 1000);
+      }, 2000);
     } catch (error) {
       toast.error(
         error.response?.data?.detail || "Invalid username or password.",
