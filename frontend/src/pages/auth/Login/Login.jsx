@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Eye, EyeOff, Lock, LogIn, User } from "lucide-react";
 import { toast } from "react-toastify";
+import { login } from "../../../utils/authService";
 
 function Login() {
   const navigate = useNavigate();
@@ -9,8 +10,9 @@ function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
 
-  const handleLogin = (event) => {
+  const handleLogin = async (event) => {
     event.preventDefault();
 
     if (!username.trim()) {
@@ -23,17 +25,21 @@ function Login() {
       return;
     }
 
-    if (username === "admin" && password === "admin123") {
+    try {
+      const data = await login(username, password);
+
       localStorage.setItem("isLoggedIn", "true");
       localStorage.setItem("username", username);
 
-      toast.success("Login successful! Welcome to ScholarStats.");
+      toast.success(data.message);
 
       setTimeout(() => {
         navigate("/dashboard");
       }, 1000);
-    } else {
-      toast.error("Invalid username or password.");
+    } catch (error) {
+      toast.error(
+        error.response?.data?.detail || "Invalid username or password.",
+      );
     }
   };
 
@@ -114,6 +120,8 @@ function Login() {
               <label className="flex items-center gap-2 text-secondary">
                 <input
                   type="checkbox"
+                  checked={rememberMe}
+                  onChange={(e) => setRememberMe(e.target.checked)}
                   className="h-4 w-4 rounded border-gray-300 accent-primary"
                 />
                 Remember me
