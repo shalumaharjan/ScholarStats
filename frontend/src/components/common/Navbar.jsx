@@ -1,19 +1,20 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Menu, UserCircle, User, Settings, LogOut } from "lucide-react";
+import { logout } from "../../utils/authService";
 
 function Navbar({ title, subtitle, onToggleSidebar }) {
   const navigate = useNavigate();
 
   const [profileOpen, setProfileOpen] = useState(false);
-  const handleLogout = () => {
-    localStorage.removeItem("isLoggedIn");
-    localStorage.removeItem("username");
+  const handleLogout = async () => {
+    try {
+      await logout();
 
-    sessionStorage.removeItem("isLoggedIn");
-    sessionStorage.removeItem("username");
-
-    navigate("/login");
+      navigate("/login");
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (

@@ -7,6 +7,7 @@ import FetchResult from "../pages/FetchResult";
 import FetchStatus from "../pages/FetchStatus";
 import UnderConstruction from "../pages/UnderConstruction";
 import NotFound from "../pages/NotFound";
+import ProtectedLayout from "../pages/ProtectedLayout";
 
 function AppRoutes() {
   return (
