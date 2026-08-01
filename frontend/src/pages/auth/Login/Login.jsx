@@ -141,9 +141,9 @@ function Login() {
           </form>
         </div>
 
-        <p className="font-voces text-center text-xs text-secondary mt-5">
+        {/* <p className="font-voces text-center text-xs text-secondary mt-5">
           © 2026 ScholarStats. All rights reserved.
-        </p>
+        </p> */}
       </div>
     </div>
   );

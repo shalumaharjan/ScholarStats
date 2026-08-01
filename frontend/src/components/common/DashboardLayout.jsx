@@ -20,7 +20,7 @@ function DashboardLayout({ title, subtitle, children }) {
 
           <section className="flex-1 p-5 lg:p-8">{children}</section>
 
-          <Footer />
+          {/* <Footer /> */}
         </main>
       </div>
     </div>
