@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import DashboardLayout from "../components/common/DashboardLayout";
 import { Search, Loader2 } from "lucide-react";
 import { toast } from "react-toastify";
+import axiosInstance from "../utils/axiosInstance";
 
 function FetchResult() {
   const navigate = useNavigate();
@@ -57,40 +58,30 @@ function FetchResult() {
     }));
   };
 
-  const handleFetchResult = () => {
+  const handleFetchResult = async () => {
     if (!formData.studentFileId) {
-      toast.warning("Please select a student file first.");
+      alert("Please select a student file first.");
       return;
     }
 
-    setFetching(true);
-    /*
-    POST http://localhost:5000/api/fetch-jobs
+    try {
+      setFetching(true);
 
-    Data sent:
-    {
-      studentFileId,
-      resultType,
-      semester,
-      academicYear,
-      academicSession
-    }
+      const response = await axiosInstance.post("/fetch-jobs", formData);
 
-    Backend will:
-    1. Create fetch job.
-    2. Load students from selected file.
-    3. Use exam_roll_number and date_of_birth.
-    4. Run Selenium automation.
-    5. Store fetched results.
-    6. Return fetchJobId.
-  */
+      alert(response.data.message || "Result fetch process started.");
 
-    // Temporary loading simulation
-    setTimeout(() => {
-      setFetching(false);
-      toast.success("Result fetch process started.");
       navigate("/fetch-status");
-    }, 2000);
+    } catch (error) {
+      console.error("Fetch job error:", error);
+
+      alert(
+        error.response?.data?.message ||
+          "Something went wrong while starting result fetch.",
+      );
+    } finally {
+      setFetching(false);
+    }
   };
 
   return (
