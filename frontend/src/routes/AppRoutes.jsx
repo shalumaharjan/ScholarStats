@@ -8,6 +8,9 @@ import FetchStatus from "../pages/FetchStatus";
 import UnderConstruction from "../pages/UnderConstruction";
 import NotFound from "../pages/NotFound";
 import ProtectedLayout from "../pages/ProtectedLayout";
+import ResultFiles from "../pages/ResultFiles";
+import SemesterAnalysis from "../pages/SemesterAnalysis";
+import Reports from "../pages/Reports";
 
 function AppRoutes() {
   return (
@@ -20,9 +23,9 @@ function AppRoutes() {
           <Route path="/student-files" element={<StudentFiles />} />
           <Route path="/fetch-result" element={<FetchResult />} />
           <Route path="/fetch-status" element={<FetchStatus />} />
-          <Route path="/upload-report" element={<UnderConstruction />} />
-          <Route path="/semester-analysis" element={<UnderConstruction />} />
-          <Route path="/reports" element={<UnderConstruction />} />
+          <Route path="/result-files" element={<ResultFiles />} />
+          <Route path="/semester-analysis" element={<SemesterAnalysis />} />
+          <Route path="/reports" element={<Reports />} />
         </Route>
         <Route path="*" element={<NotFound />} />
       </Routes>

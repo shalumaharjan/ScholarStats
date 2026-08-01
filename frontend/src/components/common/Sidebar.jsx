@@ -8,7 +8,7 @@ import {
   Home,
   LogOut,
   PieChart,
-  UploadCloud,
+  FileSpreadsheet,
 } from "lucide-react";
 
 function Sidebar({ isSidebarCollapsed }) {
@@ -20,7 +20,7 @@ function Sidebar({ isSidebarCollapsed }) {
     { name: "Student Files", icon: FolderOpen, path: "/student-files" },
     { name: "Fetch Result", icon: CloudDownload, path: "/fetch-result" },
     { name: "Fetch Status", icon: BarChart3, path: "/fetch-status" },
-    { name: "Upload Report", icon: UploadCloud, path: "/upload-report" },
+    { name: "Result Files", icon: FileSpreadsheet, path: "/result-files" },
     { name: "Semester Analysis", icon: PieChart, path: "/semester-analysis" },
     { name: "Reports", icon: FileText, path: "/reports" },
   ];
