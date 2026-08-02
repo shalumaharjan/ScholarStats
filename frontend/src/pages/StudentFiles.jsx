@@ -7,6 +7,8 @@ import {
   FileCheck,
   FileSpreadsheet,
   GraduationCap,
+  Send,
+  Trash2,
   UploadCloud,
   X,
 } from "lucide-react";
@@ -106,6 +108,51 @@ function StudentFiles() {
       icon: GraduationCap,
     },
   ];
+
+  const savedFiles = [
+    {
+      id: 1,
+      fileName: "BCA_6th_Sem_Students.xlsx",
+      program: "BCA",
+      year: "2025",
+      records: 45,
+      extractionStatus: "Extracted",
+      validationStatus: "Validated",
+      uploadedDate: "1 July 2026",
+    },
+    {
+      id: 2,
+      fileName: "BCA_5th_Sem_Students.csv",
+      program: "BCA",
+      year: "2025",
+      records: 42,
+      extractionStatus: "Extracted",
+      validationStatus: "Validated",
+      uploadedDate: "25 June 2026",
+    },
+    {
+      id: 3,
+      fileName: "BCA_4th_Sem_Students.xlsx",
+      program: "BCA",
+      year: "2024",
+      records: 40,
+      extractionStatus: "Failed",
+      validationStatus: "Invalid",
+      uploadedDate: "12 June 2026",
+    },
+  ];
+
+  const getStatusBadge = (status) => {
+    if (status === "Extracted" || status === "Validated") {
+      return "bg-green-50 text-green-700 border-green-200";
+    }
+
+    if (status === "Failed" || status === "Invalid") {
+      return "bg-red-50 text-red-700 border-red-200";
+    }
+
+    return "bg-blue-50 text-primary border-blue-200";
+  };
 
   return (
     <DashboardLayout
@@ -374,6 +421,129 @@ function StudentFiles() {
             </div>
           </div>
         )}
+      </div>
+      <div className="mt-6 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+        <div className="mb-5">
+          <h2 className="font-raleway text-xl font-bold text-gray-900">
+            Saved Student Files
+          </h2>
+
+          <p className="font-voces mt-1 text-sm text-secondary">
+            Previously uploaded files that can be reused for result fetching.
+          </p>
+        </div>
+
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-[850px]">
+            <thead>
+              <tr className="border-y border-gray-200 bg-gray-50">
+                <th className="px-4 py-3 text-left text-sm font-bold text-secondary">
+                  File Name
+                </th>
+
+                <th className="px-4 py-3 text-left text-sm font-bold text-secondary">
+                  Program
+                </th>
+
+                <th className="px-4 py-3 text-left text-sm font-bold text-secondary">
+                  Year
+                </th>
+
+                <th className="px-4 py-3 text-left text-sm font-bold text-secondary">
+                  Records
+                </th>
+
+                <th className="px-4 py-3 text-left text-sm font-bold text-secondary">
+                  Extraction
+                </th>
+
+                <th className="px-4 py-3 text-left text-sm font-bold text-secondary">
+                  Validation
+                </th>
+
+                <th className="px-4 py-3 text-left text-sm font-bold text-secondary">
+                  Uploaded Date
+                </th>
+
+                <th className="px-4 py-3 text-left text-sm font-bold text-secondary">
+                  Actions
+                </th>
+              </tr>
+            </thead>
+
+            <tbody>
+              {savedFiles.map((file) => (
+                <tr
+                  key={file.id}
+                  className="border-b border-gray-100 transition hover:bg-gray-50"
+                >
+                  <td className="px-4 py-4">
+                    <div className="flex items-center gap-3">
+                      <FileSpreadsheet size={19} className="text-primary" />
+
+                      <span className="text-sm font-bold text-gray-800">
+                        {file.fileName}
+                      </span>
+                    </div>
+                  </td>
+
+                  <td className="px-4 py-4 text-sm text-secondary">
+                    {file.program}
+                  </td>
+
+                  <td className="px-4 py-4 text-sm text-secondary">
+                    {file.year}
+                  </td>
+
+                  <td className="px-4 py-4 text-sm font-bold text-gray-800">
+                    {file.records}
+                  </td>
+
+                  <td className="px-4 py-4">
+                    <span
+                      className={`inline-flex rounded-full border px-3 py-1 text-xs font-bold ${getStatusBadge(
+                        file.extractionStatus,
+                      )}`}
+                    >
+                      {file.extractionStatus}
+                    </span>
+                  </td>
+
+                  <td className="px-4 py-4">
+                    <span
+                      className={`inline-flex rounded-full border px-3 py-1 text-xs font-bold ${getStatusBadge(
+                        file.validationStatus,
+                      )}`}
+                    >
+                      {file.validationStatus}
+                    </span>
+                  </td>
+
+                  <td className="px-4 py-4 text-sm text-secondary">
+                    {file.uploadedDate}
+                  </td>
+
+                  <td className="px-4 py-4">
+                    <div className="flex items-center gap-2">
+                      <button className="rounded-lg bg-blue-50 px-3 py-2 text-xs font-bold text-primary transition hover:bg-blue-100">
+                        View
+                      </button>
+
+                      <button className="flex items-center gap-1 rounded-lg bg-green-50 px-3 py-2 text-xs font-bold text-green-700 transition hover:bg-green-100">
+                        <Send size={14} />
+                        Use
+                      </button>
+
+                      <button className="rounded-lg bg-red-50 px-3 py-2 text-xs font-bold text-red-600 transition hover:bg-red-100">
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     </DashboardLayout>
   );

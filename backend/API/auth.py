@@ -1,4 +1,5 @@
-from fastapi import APIRouter, Depends, HTTPException, Response
+from fastapi import APIRouter, Depends, HTTPException, Response, Request
+from .jwt_handler import create_access_token, verify_access_token
 from sqlalchemy.orm import Session
 from passlib.context import CryptContext
 import hashlib
@@ -81,4 +82,39 @@ def login(user: UserCreate, response: Response, db: Session = Depends(get_db)):
     return {
         "access_token": token,
         "token_type": "bearer"
+    }
+
+# =========================
+# CURRENT USER
+# =========================
+@router.get("/auth/me")
+def get_current_user(request: Request):
+    token = request.cookies.get("access_token")
+    if not token:
+        raise HTTPException(
+            status_code=401,
+            detail="Not authenticated"
+        )
+    username = verify_access_token(token)
+
+    if not username:
+        raise HTTPException(
+            status_code=401,
+            detail="Invalid or expired token"
+        )
+    return {
+        "authenticated": True,
+        "username": username
+    }
+
+# =========================
+# LOGOUT
+# =========================
+@router.post("/logout")
+def logout(response: Response):
+    response.delete_cookie(
+        key="access_token"
+    )
+    return {
+        "message": "Logged out successfully"
     }

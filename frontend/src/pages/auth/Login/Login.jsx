@@ -10,7 +10,7 @@ function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [rememberMe, setRememberMe] = useState(false);
+  // const [rememberMe, setRememberMe] = useState(false);
 
   const handleLogin = async (event) => {
     event.preventDefault();
@@ -27,15 +27,11 @@ function Login() {
 
     try {
       const data = await login(username, password);
-
-      localStorage.setItem("isLoggedIn", "true");
-      localStorage.setItem("username", username);
-
-      toast.success(data.message);
+      toast.success("Login successful! Welcome to ScholarStats.");
 
       setTimeout(() => {
         navigate("/dashboard");
-      }, 1000);
+      }, 2000);
     } catch (error) {
       toast.error(
         error.response?.data?.detail || "Invalid username or password.",
@@ -116,7 +112,7 @@ function Login() {
               </div>
             </div>
 
-            <div className="flex items-center justify-between text-sm">
+            {/* <div className="flex items-center justify-between text-sm">
               <label className="flex items-center gap-2 text-secondary">
                 <input
                   type="checkbox"
@@ -125,15 +121,15 @@ function Login() {
                   className="h-4 w-4 rounded border-gray-300 accent-primary"
                 />
                 Remember me
-              </label>
+              </label> */}
 
-              {/* <button
+            {/* <button
                 type="button"
                 className="font-bold text-primary hover:underline"
               >
                 Forgot password?
               </button> */}
-            </div>
+            {/* </div> */}
 
             <button
               type="submit"
@@ -145,9 +141,9 @@ function Login() {
           </form>
         </div>
 
-        <p className="font-voces text-center text-xs text-secondary mt-5">
+        {/* <p className="font-voces text-center text-xs text-secondary mt-5">
           © 2026 ScholarStats. All rights reserved.
-        </p>
+        </p> */}
       </div>
     </div>
   );
