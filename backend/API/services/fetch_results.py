@@ -162,6 +162,24 @@ def main():
             "session": "Fall",
             "semester": "3rd",
             "program": "Bachelor of Computer Application"
+        },
+        {
+            "ern": "24530049",
+            "dob": "03-06-2004",
+            "exam_type": "Regular_Retake",
+            "year": "2025",
+            "session": "Fall",
+            "semester": "3rd",
+            "program": "Bachelor of Computer Application"
+        },
+        {
+            "ern": "24530057",
+            "dob": "05-15-2002",
+            "exam_type": "Regular_Retake",
+            "year": "2025",
+            "session": "Fall",
+            "semester": "3rd",
+            "program": "Bachelor of Computer Application"
         }
     ]
 
