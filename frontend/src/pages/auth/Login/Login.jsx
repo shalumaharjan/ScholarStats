@@ -64,26 +64,28 @@ function Login() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-[#f5f7fb] px-4 font-biryani">
-      <div className="w-full max-w-md">
-        <div className="rounded-2xl border border-gray-200 bg-white px-8 py-10 shadow-xl">
-          {/* Brand */}
-          <div className="mb-8 text-center">
-            <h1 className="font-raleway text-4xl font-extrabold tracking-tight text-primary">
+    <div className="flex min-h-screen items-center justify-center bg-gray-100 px-4 font-biryani">
+      <div className="w-full max-w-[420px]">
+        <div className="rounded-xl border border-gray-300 bg-white px-7 py-8 shadow-sm sm:px-8">
+          {/* Branding */}
+          <div className="mb-7 text-center">
+            <h1 className="font-raleway text-3xl font-extrabold tracking-tight text-primary">
               ScholarStats
             </h1>
-            <p className="font-voces mt-2 text-sm text-secondary">
+
+            <p className="mt-1 font-voces text-sm text-secondary">
               Academic Result Analyzer
             </p>
           </div>
 
-          {/* Heading */}
-          <div className="mb-7 text-center">
-            <h2 className="font-raleway text-2xl font-bold text-gray-900">
+          {/* Page heading */}
+          <div className="mb-6 text-center">
+            <h2 className="font-raleway text-xl font-bold text-gray-900">
               Login to Dashboard
             </h2>
-            <p className="font-voces mt-1 text-sm text-secondary">
-              Enter your administrator credentials to continue
+
+            <p className="mt-1 font-voces text-sm text-secondary">
+              Enter your admin credentials to continue
             </p>
           </div>
 
@@ -98,13 +100,14 @@ function Login() {
               </label>
 
               <div
-                className={`flex items-center gap-3 rounded-xl border bg-white px-4 py-3 transition focus-within:ring-4 ${
+                className={`flex items-center gap-3 rounded-lg border bg-white px-3.5 py-3 transition ${
                   errors.username
-                    ? "border-red-400 focus-within:border-red-500 focus-within:ring-red-100"
-                    : "border-gray-300 focus-within:border-primary focus-within:ring-blue-100"
+                    ? "border-red-500"
+                    : "border-gray-300 focus-within:border-primary focus-within:ring-2 focus-within:ring-blue-100"
                 }`}
               >
-                <User size={20} className="shrink-0 text-secondary" />
+                <User size={18} className="shrink-0 text-gray-500" />
+
                 <input
                   id="username"
                   name="username"
@@ -119,6 +122,7 @@ function Login() {
                   }
                   onChange={(event) => {
                     setUsername(event.target.value);
+
                     if (errors.username) {
                       setErrors((previous) => ({
                         ...previous,
@@ -126,14 +130,14 @@ function Login() {
                       }));
                     }
                   }}
-                  className="w-full bg-transparent text-sm text-gray-800 outline-none placeholder:text-gray-400 disabled:cursor-not-allowed"
+                  className="w-full bg-transparent text-sm text-gray-800 outline-none placeholder:text-gray-400 disabled:cursor-not-allowed disabled:text-gray-500"
                 />
               </div>
 
               {errors.username && (
                 <p
                   id="username-error"
-                  className="mt-2 text-xs font-semibold text-red-600"
+                  className="mt-1.5 text-xs font-semibold text-red-600"
                 >
                   {errors.username}
                 </p>
@@ -148,14 +152,16 @@ function Login() {
               >
                 Password
               </label>
+
               <div
-                className={`flex items-center gap-3 rounded-xl border bg-white px-4 py-3 transition focus-within:ring-4 ${
+                className={`flex items-center gap-3 rounded-lg border bg-white px-3.5 py-3 transition ${
                   errors.password
-                    ? "border-red-400 focus-within:border-red-500 focus-within:ring-red-100"
-                    : "border-gray-300 focus-within:border-primary focus-within:ring-blue-100"
+                    ? "border-red-500"
+                    : "border-gray-300 focus-within:border-primary focus-within:ring-2 focus-within:ring-blue-100"
                 }`}
               >
-                <Lock size={20} className="shrink-0 text-secondary" />
+                <Lock size={18} className="shrink-0 text-gray-500" />
+
                 <input
                   id="password"
                   name="password"
@@ -170,6 +176,7 @@ function Login() {
                   }
                   onChange={(event) => {
                     setPassword(event.target.value);
+
                     if (errors.password) {
                       setErrors((previous) => ({
                         ...previous,
@@ -177,7 +184,7 @@ function Login() {
                       }));
                     }
                   }}
-                  className="w-full bg-transparent text-sm text-gray-800 outline-none placeholder:text-gray-400 disabled:cursor-not-allowed"
+                  className="w-full bg-transparent text-sm text-gray-800 outline-none placeholder:text-gray-400 disabled:cursor-not-allowed disabled:text-gray-500"
                 />
 
                 <button
@@ -185,16 +192,16 @@ function Login() {
                   disabled={isLoggingIn}
                   onClick={() => setShowPassword((previous) => !previous)}
                   aria-label={showPassword ? "Hide password" : "Show password"}
-                  className="shrink-0 rounded-md p-1 text-secondary transition hover:bg-gray-100 hover:text-gray-800 focus:outline-none focus:ring-2 focus:ring-primary disabled:cursor-not-allowed"
+                  className="shrink-0 rounded p-1 text-gray-500 transition hover:bg-gray-100 hover:text-gray-800 focus:outline-none focus:ring-2 focus:ring-primary disabled:cursor-not-allowed"
                 >
-                  {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
               </div>
 
               {errors.password && (
                 <p
                   id="password-error"
-                  className="mt-2 text-xs font-semibold text-red-600"
+                  className="mt-1.5 text-xs font-semibold text-red-600"
                 >
                   {errors.password}
                 </p>
@@ -205,16 +212,16 @@ function Login() {
             <button
               type="submit"
               disabled={isLoggingIn}
-              className="flex w-full items-center justify-center gap-2 rounded-xl bg-primary py-3 font-bold text-white shadow-lg shadow-blue-200 transition hover:bg-[#0069d9] focus:outline-none focus:ring-4 focus:ring-blue-200 disabled:cursor-not-allowed disabled:opacity-60"
+              className="flex w-full items-center justify-center gap-2 rounded-lg bg-primary py-3 text-sm font-bold text-white transition hover:bg-[#0069d9] focus:outline-none focus:ring-2 focus:ring-blue-300 disabled:cursor-not-allowed disabled:opacity-60"
             >
               {isLoggingIn ? (
                 <>
-                  <Loader2 size={20} className="animate-spin" />
+                  <Loader2 size={19} className="animate-spin" />
                   Logging in...
                 </>
               ) : (
                 <>
-                  <LogIn size={20} />
+                  <LogIn size={19} />
                   Login
                 </>
               )}
