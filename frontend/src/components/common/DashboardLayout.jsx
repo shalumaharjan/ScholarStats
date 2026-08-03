@@ -14,7 +14,6 @@ function DashboardLayout({ title, subtitle, children }) {
         <main className="flex min-w-0 flex-1 flex-col">
           <Navbar
             title={title}
-            subtitle={subtitle}
             onToggleSidebar={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
           />
 

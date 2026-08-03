@@ -85,10 +85,7 @@ function FetchResult() {
   };
 
   return (
-    <DashboardLayout
-      title="Fetch Result"
-      //   subtitle="Fetch student results from result portal"
-    >
+    <DashboardLayout title="Fetch Result">
       <div className="mb-6">
         <h1 className="font-raleway text-3xl font-extrabold text-gray-900">
           Fetch Result

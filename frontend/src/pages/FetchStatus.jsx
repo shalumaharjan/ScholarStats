@@ -86,10 +86,7 @@ function FetchStatus() {
   };
 
   return (
-    <DashboardLayout
-      title="Fetch Status"
-      subtitle="Track result fetching progress"
-    >
+    <DashboardLayout title="Fetch Status">
       <div className="mb-6">
         <h1 className="font-raleway text-3xl font-extrabold text-gray-900">
           Fetch Status
