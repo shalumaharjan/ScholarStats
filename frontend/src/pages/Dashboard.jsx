@@ -183,7 +183,7 @@ function Dashboard() {
   };
 
   return (
-    <DashboardLayout title="Dashboard" subtitle="Academic result overview">
+    <DashboardLayout title="Dashboard">
       <div className="mb-6">
         <h1 className="font-raleway text-3xl font-extrabold text-gray-900">
           Dashboard

@@ -181,10 +181,7 @@ function Reports() {
   };
 
   return (
-    <DashboardLayout
-      title="Reports"
-      subtitle="Generate and download academic result reports"
-    >
+    <DashboardLayout title="Reports">
       <div className="mb-6">
         <h1 className="font-raleway text-3xl font-extrabold text-gray-900">
           Reports

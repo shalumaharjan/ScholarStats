@@ -155,10 +155,7 @@ function StudentFiles() {
   };
 
   return (
-    <DashboardLayout
-      title="Student Files"
-      // subtitle="Manage uploaded student lookup files"
-    >
+    <DashboardLayout title="Student Files">
       <div className="mb-6">
         <h1 className="font-raleway text-3xl font-extrabold text-gray-900">
           Student Files

@@ -222,10 +222,7 @@ function SemesterAnalysis() {
   };
 
   return (
-    <DashboardLayout
-      title="Semester Analysis"
-      subtitle="Analyze semester-wise academic performance"
-    >
+    <DashboardLayout title="Semester Analysis">
       <div className="mb-6">
         <h1 className="font-raleway text-3xl font-extrabold text-gray-900">
           Semester Analysis

@@ -120,10 +120,7 @@ function ResultFiles() {
   };
 
   return (
-    <DashboardLayout
-      title="Result Files"
-      subtitle="Manage generated student result files"
-    >
+    <DashboardLayout title="Result Files">
       <div className="mb-6">
         <h1 className="font-raleway text-3xl font-extrabold text-gray-900">
           Result Files
