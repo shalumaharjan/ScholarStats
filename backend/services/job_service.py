@@ -1,20 +1,7 @@
-from fastapi import APIRouter
-from pydantic import BaseModel
-from API.services.fetch_results import ResultFetcher
+from services.fetch_results import HeadlessResultChecker
 
-router = APIRouter(tags=["Fetch Jobs"])
-
-
-class FetchJobRequest(BaseModel):
-    studentFileId: str
-    resultType: str
-    semester: str
-    academicYear: str
-    academicSession: str
-
-
-@router.post("/fetch-jobs")
-def create_fetch_job(data: FetchJobRequest):
+def create_fetch_job(data):
+    # 🔹 Mapping
     exam_type_map = {
         "Regular/Retake": "Regular_Retake",
         "Rechecking/Retotaling": "Rechecking_Retotaling",
@@ -32,8 +19,9 @@ def create_fetch_job(data: FetchJobRequest):
         "Eighth": "8th"
     }
 
+    # 🔹 Build student data
     student = {
-        "ern": "24530044",
+        "ern": "24530044",  # later you will fetch from DB
         "dob": "12-01-2005",
         "exam_type": exam_type_map[data.resultType],
         "year": data.academicYear,
@@ -42,7 +30,7 @@ def create_fetch_job(data: FetchJobRequest):
         "program": "Bachelor of Computer Application"
     }
 
-    fetcher = ResultFetcher(headless=False)
+    checker = HeadlessResultChecker()
 
     try:
         result = fetcher.fetch_result(student)
