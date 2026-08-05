@@ -8,7 +8,8 @@ from models.user import User
 from schemas.auth import UserCreate
 from core.security import create_access_token, verify_access_token
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+pwd_context = CryptContext(
+    schemes=["bcrypt"], deprecated="auto")
 
 # =========================
 # PASSWORD HELPERS
