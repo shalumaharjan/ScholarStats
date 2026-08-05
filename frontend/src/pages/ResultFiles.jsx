@@ -1,5 +1,4 @@
 import { useState } from "react";
-import DashboardLayout from "../components/common/DashboardLayout";
 
 import {
   BarChart3,
@@ -107,98 +106,93 @@ function ResultFiles() {
     if (status === "Completed") {
       return "border-green-200 bg-green-50 text-green-700";
     }
-
     if (status === "Processing") {
       return "border-blue-200 bg-blue-50 text-primary";
     }
-
     if (status === "Failed") {
       return "border-red-200 bg-red-50 text-red-700";
     }
-
     return "border-gray-200 bg-gray-50 text-gray-700";
   };
 
   return (
-    <DashboardLayout
-      title="Result Files"
-      subtitle="Manage generated student result files"
-    >
-      <div className="mb-6">
-        <h1 className="font-raleway text-3xl font-extrabold text-gray-900">
-          Result Files
-        </h1>
-
-        <p className="font-voces mt-1 text-secondary">
-          View, download, and analyze Excel files generated after result
-          fetching.
-        </p>
-      </div>
-
-      <div className="mb-6 grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4">
+    <>
+      {/* Summary cards */}
+      <div className="mb-5 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {summaryCards.map((card) => {
           const Icon = card.icon;
 
           return (
             <div
               key={card.title}
-              className="flex items-center gap-4 rounded-2xl border border-gray-200 bg-white p-5 shadow-sm transition hover:shadow-md"
+              className="rounded-xl border border-gray-200 bg-white p-5 transition-colors hover:border-gray-300"
             >
-              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-blue-50 text-primary">
-                <Icon
-                  size={26}
-                  className={card.title === "Processing" ? "animate-spin" : ""}
-                />
-              </div>
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <p className="text-sm font-bold text-gray-700">
+                    {card.title}
+                  </p>
 
-              <div>
-                <p className="text-sm font-bold text-gray-700">{card.title}</p>
+                  <h3 className="mt-2 font-raleway text-3xl font-extrabold text-gray-900">
+                    {card.value}
+                  </h3>
 
-                <h3 className="font-raleway mt-1 text-3xl font-extrabold text-gray-900">
-                  {card.value}
-                </h3>
+                  <p className="mt-1 font-voces text-sm text-secondary">
+                    {card.description}
+                  </p>
+                </div>
 
-                <p className="font-voces mt-1 text-sm text-secondary">
-                  {card.description}
-                </p>
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-blue-100 bg-blue-50 text-primary">
+                  <Icon
+                    size={20}
+                    className={
+                      card.title === "Processing" ? "animate-spin" : ""
+                    }
+                  />
+                </div>
               </div>
             </div>
           );
         })}
       </div>
 
-      <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-        <div className="mb-5 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+      {/* Generated result files */}
+      <div className="rounded-xl border border-gray-200 bg-white">
+        {/* Section heading and filters */}
+        <div className="flex flex-col gap-4 border-b border-gray-200 px-5 py-4 lg:flex-row lg:items-center lg:justify-between">
           <div>
-            <h2 className="font-raleway text-xl font-bold text-gray-900">
+            <h2 className="font-raleway text-lg font-bold text-gray-900">
               Generated Result Files
             </h2>
 
-            <p className="font-voces mt-1 text-sm text-secondary">
+            <p className="mt-1 font-voces text-sm text-secondary">
               Excel files generated after fetching student grades and SGPA.
             </p>
           </div>
 
           <div className="flex flex-col gap-3 sm:flex-row">
+            {/* Search */}
             <div className="relative">
               <Search
-                size={18}
-                className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+                size={17}
+                className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400"
               />
 
               <input
-                type="text"
+                type="search"
                 value={searchTerm}
                 onChange={(event) => setSearchTerm(event.target.value)}
                 placeholder="Search result files..."
-                className="w-full rounded-xl border border-gray-300 py-2.5 pl-10 pr-4 text-sm outline-none focus:border-primary focus:ring-4 focus:ring-blue-100 sm:w-64"
+                className="w-full rounded-lg border border-gray-300 bg-white py-2.5 pl-10 pr-3.5 text-sm text-gray-800 outline-none transition placeholder:text-gray-400 focus:border-primary focus:ring-2 focus:ring-blue-100 sm:w-64"
               />
             </div>
 
+            {/* Status filter */}
             <select
               value={statusFilter}
               onChange={(event) => setStatusFilter(event.target.value)}
-              className="rounded-xl border border-gray-300 px-4 py-2.5 text-sm outline-none focus:border-primary focus:ring-4 focus:ring-blue-100"
+              aria-label="Filter result files by status"
+              className="rounded-lg border border-gray-300 bg-white px-3.5 py-2.5 text-sm text-gray-800 outline-none transition focus:border-primary focus:ring-2 focus:ring-blue-100"
             >
               <option value="All">All Status</option>
               <option value="Completed">Completed</option>
@@ -208,43 +202,44 @@ function ResultFiles() {
           </div>
         </div>
 
+        {/* Table */}
         <div className="overflow-x-auto">
           <table className="w-full min-w-[1050px]">
             <thead>
-              <tr className="border-y border-gray-200 bg-gray-50">
-                <th className="px-4 py-3 text-left text-sm font-bold text-secondary">
+              <tr className="border-b border-gray-200 bg-gray-50">
+                <th className="px-5 py-3 text-left text-xs font-bold uppercase tracking-wide text-secondary">
                   File Name
                 </th>
 
-                <th className="px-4 py-3 text-left text-sm font-bold text-secondary">
+                <th className="px-5 py-3 text-left text-xs font-bold uppercase tracking-wide text-secondary">
                   Program
                 </th>
 
-                <th className="px-4 py-3 text-left text-sm font-bold text-secondary">
+                <th className="px-5 py-3 text-left text-xs font-bold uppercase tracking-wide text-secondary">
                   Semester
                 </th>
 
-                <th className="px-4 py-3 text-left text-sm font-bold text-secondary">
+                <th className="px-5 py-3 text-left text-xs font-bold uppercase tracking-wide text-secondary">
                   Year
                 </th>
 
-                <th className="px-4 py-3 text-left text-sm font-bold text-secondary">
+                <th className="px-5 py-3 text-left text-xs font-bold uppercase tracking-wide text-secondary">
                   Session
                 </th>
 
-                <th className="px-4 py-3 text-left text-sm font-bold text-secondary">
+                <th className="px-5 py-3 text-left text-xs font-bold uppercase tracking-wide text-secondary">
                   Students
                 </th>
 
-                <th className="px-4 py-3 text-left text-sm font-bold text-secondary">
+                <th className="px-5 py-3 text-left text-xs font-bold uppercase tracking-wide text-secondary">
                   Status
                 </th>
 
-                <th className="px-4 py-3 text-left text-sm font-bold text-secondary">
+                <th className="px-5 py-3 text-left text-xs font-bold uppercase tracking-wide text-secondary">
                   Generated Date
                 </th>
 
-                <th className="px-4 py-3 text-left text-sm font-bold text-secondary">
+                <th className="px-5 py-3 text-left text-xs font-bold uppercase tracking-wide text-secondary">
                   Actions
                 </th>
               </tr>
@@ -255,43 +250,45 @@ function ResultFiles() {
                 filteredResultFiles.map((file) => (
                   <tr
                     key={file.id}
-                    className="border-b border-gray-100 transition hover:bg-gray-50"
+                    className="border-b border-gray-100 transition-colors last:border-b-0 hover:bg-gray-50"
                   >
-                    <td className="px-4 py-4">
+                    {/* File name */}
+                    <td className="px-5 py-3.5">
                       <div className="flex items-center gap-3">
-                        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-50 text-primary">
-                          <FileSpreadsheet size={18} />
+                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-gray-200 bg-gray-50 text-primary">
+                          <FileSpreadsheet size={17} />
                         </div>
 
-                        <span className="text-sm font-bold text-gray-800">
+                        <span className="max-w-[260px] break-all text-sm font-bold text-gray-800">
                           {file.fileName}
                         </span>
                       </div>
                     </td>
 
-                    <td className="px-4 py-4 text-sm text-secondary">
+                    <td className="px-5 py-3.5 text-sm text-secondary">
                       {file.program}
                     </td>
 
-                    <td className="px-4 py-4 text-sm text-secondary">
+                    <td className="px-5 py-3.5 text-sm text-secondary">
                       {file.semester}
                     </td>
 
-                    <td className="px-4 py-4 text-sm text-secondary">
+                    <td className="px-5 py-3.5 text-sm text-secondary">
                       {file.academicYear}
                     </td>
 
-                    <td className="px-4 py-4 text-sm text-secondary">
+                    <td className="px-5 py-3.5 text-sm text-secondary">
                       {file.session}
                     </td>
 
-                    <td className="px-4 py-4 text-sm font-bold text-gray-800">
+                    <td className="px-5 py-3.5 text-sm font-bold text-gray-800">
                       {file.students}
                     </td>
 
-                    <td className="px-4 py-4">
+                    {/* Status */}
+                    <td className="px-5 py-3.5">
                       <span
-                        className={`inline-flex rounded-full border px-3 py-1 text-xs font-bold ${getStatusBadge(
+                        className={`inline-flex rounded-full border px-2.5 py-1 text-xs font-bold ${getStatusBadge(
                           file.status,
                         )}`}
                       >
@@ -299,51 +296,64 @@ function ResultFiles() {
                       </span>
                     </td>
 
-                    <td className="px-4 py-4 text-sm text-secondary">
+                    <td className="px-5 py-3.5 text-sm text-secondary">
                       {file.generatedDate}
                     </td>
 
-                    <td className="px-4 py-4">
+                    {/* Actions */}
+                    <td className="px-5 py-3.5">
                       {file.status === "Completed" ? (
                         <div className="flex items-center gap-2">
                           <button
+                            type="button"
                             title="View result file"
-                            className="rounded-lg bg-blue-50 p-2 text-primary transition hover:bg-blue-100"
+                            aria-label={`View ${file.fileName}`}
+                            className="flex h-8 w-8 items-center justify-center rounded-md border border-gray-200 text-gray-700 transition hover:border-primary hover:bg-blue-50 hover:text-primary"
                           >
-                            <Eye size={16} />
+                            <Eye size={14} />
                           </button>
 
                           <button
+                            type="button"
                             title="Download Excel"
-                            className="rounded-lg bg-green-50 p-2 text-green-700 transition hover:bg-green-100"
+                            aria-label={`Download ${file.fileName}`}
+                            className="flex h-8 w-8 items-center justify-center rounded-md border border-green-200 text-green-700 transition hover:bg-green-50"
                           >
-                            <Download size={16} />
+                            <Download size={14} />
                           </button>
 
                           <button
+                            type="button"
                             title="Analyze results"
-                            className="rounded-lg bg-purple-50 p-2 text-purple-700 transition hover:bg-purple-100"
+                            aria-label={`Analyze ${file.fileName}`}
+                            className="flex h-8 w-8 items-center justify-center rounded-md border border-purple-200 text-purple-700 transition hover:bg-purple-50"
                           >
-                            <BarChart3 size={16} />
+                            <BarChart3 size={14} />
                           </button>
 
                           <button
+                            type="button"
                             title="Delete file"
-                            className="rounded-lg bg-red-50 p-2 text-red-600 transition hover:bg-red-100"
+                            aria-label={`Delete ${file.fileName}`}
+                            className="flex h-8 w-8 items-center justify-center rounded-md border border-red-200 text-red-600 transition hover:bg-red-50"
                           >
-                            <Trash2 size={16} />
+                            <Trash2 size={14} />
                           </button>
                         </div>
                       ) : file.status === "Processing" ? (
                         <button
+                          type="button"
                           disabled
-                          className="flex items-center gap-2 rounded-lg bg-blue-50 px-3 py-2 text-xs font-bold text-primary"
+                          className="flex cursor-not-allowed items-center gap-1.5 rounded-md border border-blue-200 bg-blue-50 px-3 py-2 text-xs font-bold text-primary"
                         >
                           <Loader2 size={14} className="animate-spin" />
                           Processing
                         </button>
                       ) : (
-                        <button className="rounded-lg bg-red-50 px-3 py-2 text-xs font-bold text-red-600 transition hover:bg-red-100">
+                        <button
+                          type="button"
+                          className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-xs font-bold text-red-600 transition hover:bg-red-100"
+                        >
                           View Error
                         </button>
                       )}
@@ -352,17 +362,17 @@ function ResultFiles() {
                 ))
               ) : (
                 <tr>
-                  <td colSpan="9" className="px-4 py-12 text-center">
+                  <td colSpan={9} className="px-5 py-14 text-center">
                     <FileSpreadsheet
-                      size={42}
+                      size={34}
                       className="mx-auto mb-3 text-gray-300"
                     />
 
-                    <h3 className="font-raleway text-lg font-bold text-gray-700">
+                    <h3 className="font-raleway text-sm font-bold text-gray-700">
                       No result files found
                     </h3>
 
-                    <p className="font-voces mt-1 text-sm text-secondary">
+                    <p className="mt-1 font-voces text-sm text-secondary">
                       Try changing the search text or status filter.
                     </p>
                   </td>
@@ -372,7 +382,7 @@ function ResultFiles() {
           </table>
         </div>
       </div>
-    </DashboardLayout>
+    </>
   );
 }
 
