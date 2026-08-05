@@ -1,29 +1,14 @@
-from fastapi import APIRouter, Depends, HTTPException, Response, Request
-from .jwt_handler import create_access_token, verify_access_token
+from fastapi import HTTPException, Response, Request
 from sqlalchemy.orm import Session
 from passlib.context import CryptContext
+from config.settings import settings
 import hashlib
 
-from .database import SessionLocal
-from .models import User
-from .schemas import UserCreate
-
-# ✅ Import JWT function from separate file
-from .jwt_handler import create_access_token
-
-router = APIRouter()
+from models.user import User
+from schemas.auth import UserCreate
+from core.security import create_access_token, verify_access_token
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-
-# =========================
-# DB dependency
-# =========================
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
 
 # =========================
 # PASSWORD HELPERS
@@ -40,8 +25,7 @@ def verify_password(password: str, hashed: str) -> bool:
 # =========================
 # REGISTER
 # =========================
-@router.post("/register")
-def register(user: UserCreate, db: Session = Depends(get_db)):
+def register_user(user: UserCreate, db: Session):
     existing = db.query(User).filter(User.username == user.username).first()
     if existing:
         raise HTTPException(status_code=400, detail="User already exists")
@@ -57,28 +41,24 @@ def register(user: UserCreate, db: Session = Depends(get_db)):
     return {"message": "User created"}
 
 # =========================
-# LOGIN (JWT + COOKIE)
+# LOGIN
 # =========================
-@router.post("/login")
-def login(user: UserCreate, response: Response, db: Session = Depends(get_db)):
+def login_user(user: UserCreate, response: Response, db: Session):
     db_user = db.query(User).filter(User.username == user.username).first()
 
     if not db_user or not verify_password(user.password, db_user.hashed_password):
         raise HTTPException(status_code=400, detail="Invalid credentials")
 
-    # ✅ Create JWT token
     token = create_access_token({"sub": db_user.username})
 
-    # ✅ Store in cookie
     response.set_cookie(
         key="access_token",
         value=token,
         httponly=True,
         samesite="Lax",
-        secure=False  # change to True in production (HTTPS)
+        secure=False
     )
 
-    # ✅ ALSO return token (useful for frontend)
     return {
         "access_token": token,
         "token_type": "bearer"
@@ -87,21 +67,17 @@ def login(user: UserCreate, response: Response, db: Session = Depends(get_db)):
 # =========================
 # CURRENT USER
 # =========================
-@router.get("/auth/me")
 def get_current_user(request: Request):
     token = request.cookies.get("access_token")
+
     if not token:
-        raise HTTPException(
-            status_code=401,
-            detail="Not authenticated"
-        )
+        raise HTTPException(status_code=401, detail="Not authenticated")
+
     username = verify_access_token(token)
 
     if not username:
-        raise HTTPException(
-            status_code=401,
-            detail="Invalid or expired token"
-        )
+        raise HTTPException(status_code=401, detail="Invalid or expired token")
+
     return {
         "authenticated": True,
         "username": username
@@ -110,11 +86,6 @@ def get_current_user(request: Request):
 # =========================
 # LOGOUT
 # =========================
-@router.post("/logout")
-def logout(response: Response):
-    response.delete_cookie(
-        key="access_token"
-    )
-    return {
-        "message": "Logged out successfully"
-    }
+def logout_user(response: Response):
+    response.delete_cookie(key="access_token")
+    return {"message": "Logged out successfully"}

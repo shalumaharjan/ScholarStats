@@ -1,6 +1,8 @@
 from pydantic import BaseModel
 
-
-class FetchJobResponse(BaseModel):
-    job_id: int
-    status: str
+class FetchJobRequest(BaseModel):
+    studentFileId: str
+    resultType: str
+    semester: str
+    academicYear: str
+    academicSession: str
