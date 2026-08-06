@@ -1,4 +1,5 @@
 
+
 from fastapi import FastAPI
 
 from routes import auth, student_files, fetch_jobs, analysis, dashboard
@@ -25,6 +26,17 @@ import os
 from fastapi import FastAPI
 from routes.fetch_routes import router as fetch_router
 from fastapi.middleware.cors import CORSMiddleware
+=======
+from fastapi import FastAPI
+from routes.fetch_routes import router as fetch_router
+from fastapi.middleware.cors import CORSMiddleware
+
+from database.db import Base, engine
+from routes.auth import router as auth_router
+from routes.fetch_jobs import router as fetch_jobs_router
+>>>>>>> 3e5624710d9114bf74872bd6ca9037c8a41fe72d
+
+Base.metadata.create_all(bind=engine)
 
 
 from database.db import Base, engine
@@ -120,6 +132,15 @@ if __name__ == "__main__":
     print("📊 Excel saved: data/output/results.xlsx")
 
 
+
+app = FastAPI()
+
+# Routers
+app.include_router(auth_router)
+app.include_router(fetch_jobs_router)
+app.include_router(fetch_router)
+
+ 3e5624710d9114bf74872bd6ca9037c8a41fe72d
 # CORS
 app.add_middleware(
     CORSMiddleware,
@@ -127,5 +148,6 @@ app.add_middleware(
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+
 )
 
