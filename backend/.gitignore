@@ -1,22 +1,42 @@
-# Virtual environment
-venv/
-.venv/
-
-# Python cache
+# Python
 __pycache__/
-*.py[cod]
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual Environment
+venv/
+.env/
+
+# Database
+*.db
+*.sqlite3
+
+# Logs
+logs/
+*.log
+
+# VS Code
+.vscode/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Test cache
+.pytest_cache/
+
+# Coverage
+.coverage
+htmlcov/
 
 # Environment variables
 .env
 
-# Database files
-*.db
-*.sqlite
-*.sqlite3
+# Build files
+dist/
+build/
+*.egg-info/
 
-# Logs
-*.log
-
-# IDE files
-.vscode/
-.idea/
+# Selenium / temp
+*.tmp

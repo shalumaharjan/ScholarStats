@@ -1,5 +1,4 @@
 
-
 from fastapi import FastAPI
 
 from routes import auth, student_files, fetch_jobs, analysis, dashboard
@@ -23,19 +22,24 @@ import json
 import pandas as pd
 import os
 
-from bot.driver import get_driver
-from bot.login import open_website
-from bot.parser import parse_data
-from bot.scraper import scrape_result
+from fastapi import FastAPI
+from routes.fetch_routes import router as fetch_router
+from fastapi.middleware.cors import CORSMiddleware
 
 
-def run_from_excel(file_path):
-    # Read Excel file
-    df = pd.read_excel(file_path)
-    results = []
+from database.db import Base, engine
+from routes.auth import router as auth_router
+from routes.fetch_jobs import router as fetch_jobs_router
 
-    # Start browser once (faster)
-    driver = get_driver()
+Base.metadata.create_all(bind=engine)
+
+app = FastAPI()
+
+# Routers
+app.include_router(auth_router)
+app.include_router(fetch_jobs_router)
+app.include_router(fetch_router)
+
 
     try:
         for _, row in df.iterrows():
@@ -115,4 +119,13 @@ if __name__ == "__main__":
 
     print("📊 Excel saved: data/output/results.xlsx")
 
+
+# CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 

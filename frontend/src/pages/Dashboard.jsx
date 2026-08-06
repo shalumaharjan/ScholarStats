@@ -1,5 +1,4 @@
 import { useState } from "react";
-import DashboardLayout from "../components/common/DashboardLayout";
 
 import {
   BarChart3,
@@ -27,6 +26,7 @@ import {
   YAxis,
   CartesianGrid,
   Tooltip,
+  Legend,
 } from "recharts";
 
 function Dashboard() {
@@ -125,20 +125,81 @@ function Dashboard() {
   ];
 
   const renderPerformanceChart = () => {
+    const commonTooltipStyle = {
+      border: "1px solid #e5e7eb",
+      borderRadius: "8px",
+      boxShadow: "0 8px 24px rgba(0, 0, 0, 0.08)",
+      fontSize: "13px",
+    };
+
     if (chartType === "line") {
       return (
-        <ResponsiveContainer width="100%" height={290}>
-          <LineChart data={semesterPerformance}>
-            <CartesianGrid strokeDasharray="3 3" vertical={false} />
-            <XAxis dataKey="semester" />
-            <YAxis domain={[0, 100]} />
-            <Tooltip />
+        <ResponsiveContainer width="100%" height="100%">
+          <LineChart
+            data={semesterPerformance}
+            margin={{
+              top: 15,
+              right: 25,
+              left: 0,
+              bottom: 10,
+            }}
+          >
+            <CartesianGrid
+              stroke="#e5e7eb"
+              strokeDasharray="4 4"
+              vertical={false}
+            />
+
+            <XAxis
+              dataKey="semester"
+              axisLine={false}
+              tickLine={false}
+              tick={{ fill: "#6b7280", fontSize: 12 }}
+              tickFormatter={(value) => value.replace(" Sem", "")}
+              dy={10}
+            />
+
+            <YAxis
+              domain={[0, 100]}
+              axisLine={false}
+              tickLine={false}
+              tick={{ fill: "#6b7280", fontSize: 12 }}
+              tickFormatter={(value) => `${value}%`}
+              width={45}
+            />
+
+            <Tooltip
+              contentStyle={commonTooltipStyle}
+              labelStyle={{
+                color: "#111827",
+                fontWeight: 700,
+                marginBottom: "4px",
+              }}
+              formatter={(value) => [`${value}%`, "Pass Rate"]}
+              cursor={{
+                stroke: "#9ca3af",
+                strokeDasharray: "4 4",
+              }}
+            />
+
             <Line
               type="monotone"
               dataKey="passRate"
               stroke="#007bff"
               strokeWidth={3}
-              dot={{ r: 5 }}
+              dot={{
+                r: 4,
+                fill: "#ffffff",
+                stroke: "#007bff",
+                strokeWidth: 2,
+              }}
+              activeDot={{
+                r: 6,
+                fill: "#007bff",
+                stroke: "#ffffff",
+                strokeWidth: 2,
+              }}
+              animationDuration={700}
             />
           </LineChart>
         </ResponsiveContainer>
@@ -147,14 +208,20 @@ function Dashboard() {
 
     if (chartType === "pie") {
       return (
-        <ResponsiveContainer width="100%" height={290}>
+        <ResponsiveContainer width="100%" height="100%">
           <RechartsPieChart>
             <Pie
               data={semesterPerformance}
               dataKey="passRate"
               nameKey="semester"
-              outerRadius={105}
-              label
+              cx="50%"
+              cy="46%"
+              innerRadius="43%"
+              outerRadius="68%"
+              paddingAngle={3}
+              stroke="#ffffff"
+              strokeWidth={2}
+              animationDuration={700}
             >
               {semesterPerformance.map((item, index) => (
                 <Cell
@@ -163,221 +230,238 @@ function Dashboard() {
                 />
               ))}
             </Pie>
-            <Tooltip />
+
+            <Tooltip
+              contentStyle={commonTooltipStyle}
+              labelStyle={{
+                color: "#111827",
+                fontWeight: 700,
+              }}
+              formatter={(value) => [`${value}%`, "Pass Rate"]}
+            />
+
+            <Legend
+              verticalAlign="bottom"
+              iconType="circle"
+              iconSize={9}
+              formatter={(value) => (
+                <span className="text-xs text-gray-600">{value}</span>
+              )}
+            />
           </RechartsPieChart>
         </ResponsiveContainer>
       );
     }
 
     return (
-      <ResponsiveContainer width="100%" height={290}>
-        <BarChart data={semesterPerformance}>
-          <CartesianGrid strokeDasharray="3 3" vertical={false} />
-          <XAxis dataKey="semester" />
-          <YAxis domain={[0, 100]} />
-          <Tooltip />
-          <Bar dataKey="passRate" fill="#007bff" radius={[8, 8, 0, 0]} />
+      <ResponsiveContainer width="100%" height="100%">
+        <BarChart
+          data={semesterPerformance}
+          margin={{
+            top: 15,
+            right: 25,
+            left: 0,
+            bottom: 10,
+          }}
+          barCategoryGap="28%"
+        >
+          <CartesianGrid
+            stroke="#e5e7eb"
+            strokeDasharray="4 4"
+            vertical={false}
+          />
+
+          <XAxis
+            dataKey="semester"
+            axisLine={false}
+            tickLine={false}
+            tick={{ fill: "#6b7280", fontSize: 12 }}
+            tickFormatter={(value) => value.replace(" Sem", "")}
+            dy={10}
+          />
+
+          <YAxis
+            domain={[0, 100]}
+            axisLine={false}
+            tickLine={false}
+            tick={{ fill: "#6b7280", fontSize: 12 }}
+            tickFormatter={(value) => `${value}%`}
+            width={45}
+          />
+
+          <Tooltip
+            contentStyle={commonTooltipStyle}
+            labelStyle={{
+              color: "#111827",
+              fontWeight: 700,
+              marginBottom: "4px",
+            }}
+            formatter={(value) => [`${value}%`, "Pass Rate"]}
+            cursor={{ fill: "#f3f4f6" }}
+          />
+
+          <Bar
+            dataKey="passRate"
+            fill="#007bff"
+            radius={[6, 6, 0, 0]}
+            maxBarSize={52}
+            animationDuration={700}
+          />
         </BarChart>
       </ResponsiveContainer>
     );
   };
 
   return (
-    <DashboardLayout title="Dashboard" subtitle="Academic result overview">
-      <div className="mb-6">
-        <h1 className="font-raleway text-3xl font-extrabold text-gray-900">
-          Dashboard
-        </h1>
-        <p className="font-voces mt-1 text-secondary">
-          Overall academic result summary of the department
-        </p>
-      </div>
-
-      <div className="bg-white border border-gray-200 rounded-2xl shadow-sm p-5 mb-6">
-        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+    <>
+      {/* Department overview */}
+      <div className="mb-5 rounded-xl border border-gray-200 bg-white p-5">
+        <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
           <div className="flex items-start gap-4">
-            <div className="h-14 w-14 rounded-full bg-blue-50 text-primary flex items-center justify-center">
-              <GraduationCap size={28} />
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg border border-blue-100 bg-blue-50 text-primary">
+              <GraduationCap size={24} />
             </div>
 
             <div>
-              <p className="font-voces text-sm text-secondary">Department</p>
+              <p className="font-voces text-xs text-secondary">Department</p>
 
-              <h2 className="font-raleway text-xl font-bold text-gray-900">
+              <h2 className="mt-1 font-raleway text-lg font-bold text-gray-900">
                 Bachelor of Computer Application BCA
               </h2>
 
-              <p className="mt-1 text-sm text-secondary">
-                Academic Year:{" "}
-                <span className="font-bold text-primary">2025</span>
-                <span className="mx-2 text-gray-300">|</span>
-                Total Semesters Tracked:{" "}
-                <span className="font-bold text-primary">8</span>
-              </p>
+              <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-secondary">
+                <span>
+                  Academic Year: <strong className="text-gray-900">2025</strong>
+                </span>
+
+                <span className="hidden text-gray-300 sm:inline">|</span>
+
+                <span>
+                  Total Semesters Tracked:{" "}
+                  <strong className="text-gray-900">8</strong>
+                </span>
+              </div>
             </div>
           </div>
 
-          <div className="rounded-xl bg-gray-50 border border-gray-200 px-4 py-3">
+          <div className="rounded-lg border border-gray-200 bg-gray-50 px-4 py-3">
             <p className="font-voces text-xs text-secondary">Last Updated</p>
-            <p className="text-sm font-bold text-gray-800">
+
+            <p className="mt-1 text-sm font-bold text-gray-800">
               1 July 2026, 10:30 AM
             </p>
           </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
+      {/* Summary cards */}
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
         {summaryCards.map((card) => {
           const Icon = card.icon;
 
           return (
             <div
               key={card.title}
-              className="bg-white border border-gray-200 rounded-2xl shadow-sm p-5 flex items-center gap-4 hover:shadow-md transition"
+              className="rounded-xl border border-gray-200 bg-white p-5 transition-colors hover:border-gray-300"
             >
-              <div className="h-14 w-14 rounded-full bg-blue-50 text-primary flex items-center justify-center">
-                <Icon size={26} />
-              </div>
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <p className="text-sm font-bold text-gray-700">
+                    {card.title}
+                  </p>
 
-              <div>
-                <p className="text-sm font-bold text-gray-700">{card.title}</p>
+                  <h3 className="mt-2 font-raleway text-3xl font-extrabold text-gray-900">
+                    {card.value}
+                  </h3>
 
-                <h3 className="font-raleway text-3xl font-extrabold text-gray-900 mt-1">
-                  {card.value}
-                </h3>
+                  <p className="mt-1 font-voces text-sm text-secondary">
+                    {card.description}
+                  </p>
+                </div>
 
-                <p className="font-voces text-sm text-secondary mt-1">
-                  {card.description}
-                </p>
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-blue-100 bg-blue-50 text-primary">
+                  <Icon size={20} />
+                </div>
               </div>
             </div>
           );
         })}
       </div>
-      <div className="mt-6 grid grid-cols-1 xl:grid-cols-3 gap-5">
-        <div className="xl:col-span-2 bg-white border border-gray-200 rounded-2xl shadow-sm p-5">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-5">
-            <div>
-              <h2 className="font-raleway text-xl font-bold text-gray-900">
-                Semester-wise Pass Percentage
-              </h2>
 
-              <p className="font-voces text-sm text-secondary mt-1">
-                Compare department pass rate from 1st to 8th semester
-              </p>
-            </div>
+      {/* Semester performance chart */}
+      <div className="mt-5 overflow-hidden rounded-xl border border-gray-200 bg-white">
+        <div className="flex flex-col gap-4 border-b border-gray-200 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h2 className="font-raleway text-lg font-bold text-gray-900">
+              Semester-wise Pass Percentage
+            </h2>
 
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => setChartType("bar")}
-                className={`px-4 py-2 rounded-full text-sm font-bold transition ${
-                  chartType === "bar"
-                    ? "bg-primary text-white"
-                    : "bg-gray-100 text-secondary hover:bg-gray-200"
-                }`}
-              >
-                Bar
-              </button>
-
-              <button
-                onClick={() => setChartType("line")}
-                className={`px-4 py-2 rounded-full text-sm font-bold transition ${
-                  chartType === "line"
-                    ? "bg-primary text-white"
-                    : "bg-gray-100 text-secondary hover:bg-gray-200"
-                }`}
-              >
-                Line
-              </button>
-
-              <button
-                onClick={() => setChartType("pie")}
-                className={`px-4 py-2 rounded-full text-sm font-bold transition ${
-                  chartType === "pie"
-                    ? "bg-primary text-white"
-                    : "bg-gray-100 text-secondary hover:bg-gray-200"
-                }`}
-              >
-                Pie
-              </button>
-            </div>
-          </div>
-
-          <div className="h-[310px]">{renderPerformanceChart()}</div>
-        </div>
-
-        <div className="bg-white border border-gray-200 rounded-2xl shadow-sm p-5">
-          <div className="flex items-start justify-between gap-4">
-            <div>
-              <h2 className="font-raleway text-xl font-bold text-gray-900">
-                Latest Semester Summary
-              </h2>
-
-              <p className="font-voces text-sm text-secondary mt-1">
-                Spring 2025 | Regular/Retake
-              </p>
-            </div>
-
-            <span className="rounded-full border border-primary px-3 py-1 text-xs font-bold text-primary">
-              Latest
-            </span>
-          </div>
-
-          <div className="mt-5 rounded-xl bg-blue-50 border border-blue-100 p-4">
-            <h3 className="font-raleway text-lg font-bold text-gray-900">
-              BCA Sixth Semester
-            </h3>
-
-            <p className="font-voces text-sm text-secondary mt-1">
-              Department result summary
+            <p className="mt-1 font-voces text-sm text-secondary">
+              Compare department pass rates from the 1st to 8th semester.
             </p>
           </div>
 
-          <div className="mt-5 divide-y divide-gray-200">
-            <div className="flex items-center justify-between py-3">
-              <span className="text-sm text-secondary">Total Students</span>
-              <strong className="text-gray-900">45</strong>
-            </div>
+          <div className="inline-flex w-fit items-center rounded-lg border border-gray-200 bg-gray-50 p-1">
+            <button
+              type="button"
+              onClick={() => setChartType("bar")}
+              className={`rounded-md px-3.5 py-2 text-xs font-bold transition ${
+                chartType === "bar"
+                  ? "bg-primary text-white"
+                  : "text-secondary hover:bg-white hover:text-gray-900"
+              }`}
+            >
+              Bar
+            </button>
 
-            <div className="flex items-center justify-between py-3">
-              <span className="text-sm text-secondary">Passed Students</span>
-              <strong className="text-green-600">38</strong>
-            </div>
+            <button
+              type="button"
+              onClick={() => setChartType("line")}
+              className={`rounded-md px-3.5 py-2 text-xs font-bold transition ${
+                chartType === "line"
+                  ? "bg-primary text-white"
+                  : "text-secondary hover:bg-white hover:text-gray-900"
+              }`}
+            >
+              Line
+            </button>
 
-            <div className="flex items-center justify-between py-3">
-              <span className="text-sm text-secondary">Failed Students</span>
-              <strong className="text-red-600">7</strong>
-            </div>
-
-            <div className="flex items-center justify-between py-3">
-              <span className="text-sm text-secondary">Pass Percentage</span>
-              <strong className="text-primary">84.4%</strong>
-            </div>
-
-            <div className="flex items-center justify-between py-3">
-              <span className="text-sm text-secondary">Average GPA</span>
-              <strong className="text-gray-900">3.21</strong>
-            </div>
+            <button
+              type="button"
+              onClick={() => setChartType("pie")}
+              className={`rounded-md px-3.5 py-2 text-xs font-bold transition ${
+                chartType === "pie"
+                  ? "bg-primary text-white"
+                  : "text-secondary hover:bg-white hover:text-gray-900"
+              }`}
+            >
+              Pie
+            </button>
           </div>
+        </div>
 
-          <button className="mt-5 w-full rounded-xl bg-primary py-3 text-white font-bold hover:bg-[#0069d9] transition">
-            View Full Semester Analysis
-          </button>
+        <div className="h-[340px] px-2 py-4 sm:h-[390px] sm:px-5">
+          {renderPerformanceChart()}
         </div>
       </div>
-      <div className="mt-6 w-full bg-white border border-gray-200 rounded-2xl shadow-sm p-5">
-        <div className="flex items-center justify-between gap-4 mb-5">
+
+      {/* Recent activity */}
+      <div className="mt-5 rounded-xl border border-gray-200 bg-white">
+        <div className="flex items-center justify-between gap-4 border-b border-gray-200 px-5 py-4">
           <div>
-            <h2 className="font-raleway text-xl font-bold text-gray-900">
+            <h2 className="font-raleway text-lg font-bold text-gray-900">
               Recent Activity
             </h2>
 
-            <p className="font-voces text-sm text-secondary mt-1">
+            <p className="mt-1 font-voces text-sm text-secondary">
               Latest system activities and result processing updates
             </p>
           </div>
 
-          <button className="text-sm font-bold text-primary hover:underline">
+          <button
+            type="button"
+            className="shrink-0 rounded-md border border-gray-200 px-3 py-2 text-xs font-bold text-primary transition hover:border-primary hover:bg-blue-50"
+          >
             View All
           </button>
         </div>
@@ -385,17 +469,20 @@ function Dashboard() {
         <div className="overflow-x-auto">
           <table className="w-full min-w-[700px]">
             <thead>
-              <tr className="bg-gray-50 border-y border-gray-200">
-                <th className="text-left px-4 py-3 text-sm font-bold text-secondary">
+              <tr className="border-b border-gray-200 bg-gray-50">
+                <th className="px-5 py-3 text-left text-xs font-bold uppercase tracking-wide text-secondary">
                   Activity
                 </th>
-                <th className="text-left px-4 py-3 text-sm font-bold text-secondary">
+
+                <th className="px-5 py-3 text-left text-xs font-bold uppercase tracking-wide text-secondary">
                   Status
                 </th>
-                <th className="text-left px-4 py-3 text-sm font-bold text-secondary">
+
+                <th className="px-5 py-3 text-left text-xs font-bold uppercase tracking-wide text-secondary">
                   Date
                 </th>
-                <th className="text-left px-4 py-3 text-sm font-bold text-secondary">
+
+                <th className="px-5 py-3 text-left text-xs font-bold uppercase tracking-wide text-secondary">
                   Time
                 </th>
               </tr>
@@ -408,12 +495,12 @@ function Dashboard() {
                 return (
                   <tr
                     key={item.activity}
-                    className="border-b border-gray-100 hover:bg-gray-50 transition"
+                    className="border-b border-gray-100 transition-colors last:border-b-0 hover:bg-gray-50"
                   >
-                    <td className="px-4 py-4">
+                    <td className="px-5 py-3.5">
                       <div className="flex items-center gap-3">
-                        <div className="h-10 w-10 rounded-full bg-blue-50 text-primary flex items-center justify-center">
-                          <Icon size={19} />
+                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-blue-100 bg-blue-50 text-primary">
+                          <Icon size={17} />
                         </div>
 
                         <span className="text-sm font-semibold text-gray-800">
@@ -422,28 +509,29 @@ function Dashboard() {
                       </div>
                     </td>
 
-                    <td className="px-4 py-4">
+                    <td className="px-5 py-3.5">
                       <span
-                        className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold ${
+                        className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-bold ${
                           item.status === "Completed"
-                            ? "bg-green-50 text-green-700"
-                            : "bg-blue-50 text-primary"
+                            ? "border-green-200 bg-green-50 text-green-700"
+                            : "border-blue-200 bg-blue-50 text-primary"
                         }`}
                       >
                         {item.status === "Completed" ? (
-                          <CheckCircle size={14} />
+                          <CheckCircle size={13} />
                         ) : (
-                          <Clock size={14} />
+                          <Clock size={13} />
                         )}
+
                         {item.status}
                       </span>
                     </td>
 
-                    <td className="px-4 py-4 text-sm text-secondary">
+                    <td className="px-5 py-3.5 text-sm text-secondary">
                       {item.date}
                     </td>
 
-                    <td className="px-4 py-4 text-sm text-secondary">
+                    <td className="px-5 py-3.5 text-sm text-secondary">
                       {item.time}
                     </td>
                   </tr>
@@ -453,7 +541,7 @@ function Dashboard() {
           </table>
         </div>
       </div>
-    </DashboardLayout>
+    </>
   );
 }
 

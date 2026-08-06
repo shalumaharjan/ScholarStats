@@ -1,75 +1,40 @@
-def analyze_students(students):
-<<<<<<< HEAD
+def analyze_students(df):
 
-    total_students = len(students)
+    subjects = ["DSA", "WT", "OS", "OOP", "SAPM"]
 
-    passed = 0
-    failed = 0
+    df["Total"] = df[subjects].sum(axis=1)
+    df["Percentage"] = df["Total"] / len(subjects)
 
-    total_gpa = 0
+    df["Status"] = df["Percentage"].apply(
+        lambda x: "Pass" if x >= 40 else "Fail"
+    )
 
-    for student in students:
+    total_students = len(df)
+    passed_students = len(df[df["Status"] == "Pass"])
+    failed_students = len(df[df["Status"] == "Fail"])
 
-        total_gpa += float(student["GPA"])
+    pass_percentage = round((passed_students / total_students) * 100, 2)
+    fail_percentage = round((failed_students / total_students) * 100, 2)
 
-        if student["Status"] == "Pass":
-            passed += 1
-        else:
-            failed += 1
+    highest_marks = {}
 
+    for subject in subjects:
 
-    average_gpa = total_gpa / total_students
+        highest = df[subject].max()
 
+        student = df[df[subject] == highest]["Name"].values[0]
 
-    return {
-        "total_students": total_students,
-        "passed_students": passed,
-        "failed_students": failed,
-        "average_gpa": round(average_gpa,2)
-=======
-    """
-    Analyze student results.
-    """
-
-    if not students:
-        return {
-            "message": "No student data found."
+        highest_marks[subject] = {
+            "Highest Mark": highest,
+            "Student": student
         }
 
-    total_students = len(students)
-
-    highest_gpa = max(student["gpa"] for student in students)
-
-    lowest_gpa = min(student["gpa"] for student in students)
-
-    average_gpa = round(
-        sum(student["gpa"] for student in students) / total_students,
-        2
-    )
-
-    passed_students = len(
-        [student for student in students if student["status"].lower() == "pass"]
-    )
-
-    failed_students = len(
-        [student for student in students if student["status"].lower() == "fail"]
-    )
-
-    pass_percentage = round(
-        (passed_students / total_students) * 100,
-        2
-    )
-
-    topper = max(students, key=lambda student: student["gpa"])
-
     return {
-        "total_students": total_students,
-        "highest_gpa": highest_gpa,
-        "lowest_gpa": lowest_gpa,
-        "average_gpa": average_gpa,
-        "passed_students": passed_students,
-        "failed_students": failed_students,
-        "pass_percentage": pass_percentage,
-        "topper": topper
->>>>>>> 7bb495c32c9a9e6a6b90c809ced05f42c8b09174
+        "Total Students": total_students,
+        "Passed Students": passed_students,
+        "Failed Students": failed_students,
+        "Pass Percentage": pass_percentage,
+        "Fail Percentage": fail_percentage,
+        "Highest Marks": highest_marks,
+        "Student Details": df
     }

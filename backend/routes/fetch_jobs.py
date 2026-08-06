@@ -1,39 +1,9 @@
 from fastapi import APIRouter
+from schemas.fetch_job import FetchJobRequest
+from services import job_service
 
-router = APIRouter(
-    prefix="/api/fetch-jobs",
-    tags=["Fetch Jobs"]
-)
+router = APIRouter(tags=["Fetch Jobs"])
 
-# Temporary in-memory storage
-jobs = []
-
-
-@router.post("")
-def create_job():
-
-    job = {
-        "job_id": len(jobs) + 1,
-        "status": "Pending"
-    }
-
-    jobs.append(job)
-
-    return job
-
-
-@router.get("")
-def get_jobs():
-    return jobs
-
-
-@router.get("/{job_id}")
-def get_job(job_id: int):
-
-    for job in jobs:
-        if job["job_id"] == job_id:
-            return job
-
-    return {
-        "message": "Job not found"
-    }
+@router.post("/fetch-jobs")
+def create_fetch_job(data: FetchJobRequest):
+    return job_service.create_fetch_job(data)
