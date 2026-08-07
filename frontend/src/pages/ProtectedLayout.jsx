@@ -10,7 +10,7 @@ function ProtectedLayout() {
   useEffect(() => {
     const checkAuthentication = async () => {
       try {
-        await axiosInstance.get("/auth/me");
+        await axiosInstance.get("/me");
         setAuthenticated(true);
       } catch (error) {
         setAuthenticated(false);

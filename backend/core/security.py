@@ -1,11 +1,12 @@
 from datetime import datetime, timedelta, timezone
 from jose import jwt, JWTError
 from config.settings import settings
-from fastapi import Header, HTTPException
-
-
+from fastapi import Header, HTTPException, Cookie
 
 def create_access_token(data: dict):
+    print("SECRET:", settings.SECRET_KEY)
+    print("ALGORITHM:", settings.ALGORITHM)
+    print("EXPIRE:", settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     to_encode = data.copy()
     expire = datetime.now(timezone.utc) + timedelta(
         minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES
@@ -27,14 +28,20 @@ def verify_access_token(token: str):
 
 # for protected login
 
-def get_current_user(authorization: str = Header(None)):
-    if not authorization or not authorization.startswith("Bearer "):
-        raise HTTPException(status_code=401, detail="No token")
+def get_current_user(access_token: str = Cookie(None)):
 
-    token = authorization.split(" ", 1)[1]
-    username = verify_access_token(token)
+    if not access_token:
+        raise HTTPException(
+            status_code=401,
+            detail="No token"
+        )
+
+    username = verify_access_token(access_token)
 
     if username is None:
-        raise HTTPException(status_code=401, detail="Invalid token")
+        raise HTTPException(
+            status_code=401,
+            detail="Invalid token"
+        )
 
     return username
