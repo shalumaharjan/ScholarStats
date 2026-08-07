@@ -1,6 +1,5 @@
 from pydantic_settings import BaseSettings
 
-
 class Settings(BaseSettings):
     # 🔐 Security
     SECRET_KEY: str = "supersecretkey"
@@ -8,7 +7,7 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
 
     # 🗄️ Database
-    DATABASE_URL: str = "sqlite:///./database/mydb.db"
+    DATABASE_URL: str = "mysql+pymysql://root:root@localhost:3306/scholarstats"
 
     # 🌐 Scraper
     LOGIN_URL: str = "https://exam.pu.edu.np:9094/"
