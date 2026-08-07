@@ -12,7 +12,7 @@ from sqlalchemy import (
 
 from sqlalchemy.orm import relationship
 
-from database import Base
+from database.connection import Base
 
 
 # =====================================================
@@ -20,41 +20,11 @@ from database import Base
 # =====================================================
 
 class User(Base):
-
     __tablename__ = "users"
 
-    user_id = Column(
-        Integer,
-        primary_key=True,
-        autoincrement=True
-    )
-
-    full_name = Column(
-        String(100),
-        nullable=False
-    )
-
-    email = Column(
-        String(150),
-        unique=True,
-        nullable=False,
-        index=True
-    )
-
-    password_hash = Column(
-        String(255),
-        nullable=False
-    )
-
-    role = Column(
-        String(20),
-        default="admin"
-    )
-
-    created_at = Column(
-        DateTime,
-        default=datetime.utcnow
-    )
+    id = Column(Integer, primary_key=True)
+    username = Column(String(50), unique=True)
+    hashed_password = Column(String(255))
 
     student_files = relationship(
         "StudentFile",
@@ -84,7 +54,7 @@ class StudentFile(Base):
     uploaded_by = Column(
         Integer,
         ForeignKey(
-            "users.user_id",
+            "users.id",
             ondelete="CASCADE"
         ),
         nullable=False
@@ -548,7 +518,7 @@ class ActivityLog(Base):
     user_id = Column(
         Integer,
         ForeignKey(
-            "users.user_id",
+            "users.id",
             ondelete="SET NULL"
         ),
         nullable=True
