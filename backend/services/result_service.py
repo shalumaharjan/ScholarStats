@@ -1,4 +1,4 @@
-def fetch_multiple_results(students):
+ def fetch_multiple_results(students):
     fetcher = ResultFetcher(headless=True)
     all_results = []
 

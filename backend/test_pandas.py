@@ -1,13 +1,59 @@
-from services.file_service import read_excel
-from services.analysis_service import analyze_students
+from services.file_service import read_excel_files
 
-file_path = "uploads/student_result.xlsx"
+from services.chart_service import (
+    get_pass_fail_data,
+    get_grade_data,
+    grade_bar_chart
+)
 
-df = read_excel(file_path)
 
-df, summary = analyze_students(df)
+# ==========================================
+# READ EXCEL
+# ==========================================
+
+df = read_excel_files()
+
+print("\n==========================================")
+print("ORIGINAL DATA")
+print("==========================================")
 
 print(df)
 
-print("\nSummary:")
-print(summary)
+
+# ==========================================
+# PASS VS FAIL
+# ==========================================
+
+pass_fail = get_pass_fail_data(df)
+
+print("\n==========================================")
+print("PASS VS FAIL DATA")
+print("==========================================")
+
+print(pass_fail)
+
+
+# ==========================================
+# GRADE-WISE DATA
+# ==========================================
+
+grade_data = get_grade_data(df)
+
+print("\n==========================================")
+print("GRADE-WISE DATA")
+print("==========================================")
+
+print(grade_data)
+
+
+# ==========================================
+# GRADE BAR CHART DATA
+# ==========================================
+
+grade_chart = grade_bar_chart(df)
+
+print("\n==========================================")
+print("GRADE BAR CHART DATA")
+print("==========================================")
+
+print(grade_chart)

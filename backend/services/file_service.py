@@ -2,33 +2,30 @@ import pandas as pd
 import os
 
 
-def read_excel_files():
+UPLOAD_FOLDER = "uploads"
 
-    upload_folder = "uploads"
+
+def read_excel_files():
 
     files = [
         file
-        for file in os.listdir(upload_folder)
+        for file in os.listdir(UPLOAD_FOLDER)
         if file.endswith(".xlsx")
     ]
 
-    dataframes = []
-
-    for file in files:
-
-        file_path = os.path.join(
-            upload_folder,
-            file
+    if not files:
+        raise FileNotFoundError(
+            "No Excel file found in uploads folder."
         )
 
-        df = pd.read_excel(file_path, engine="openpyxl")
-
-        dataframes.append(df)
-
-    if not dataframes:
-        return pd.DataFrame()
-
-    return pd.concat(
-        dataframes,
-        ignore_index=True
+    file_path = os.path.join(
+        UPLOAD_FOLDER,
+        files[0]
     )
+
+    df = pd.read_excel(
+        file_path,
+        engine="openpyxl"
+    )
+
+    return df

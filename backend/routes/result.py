@@ -18,10 +18,8 @@ def get_results():
     result = analyze_students(df)
 
     return {
-    "total_students": summary["total_students"],
-    "passed_students": summary["passed_students"],
-    "failed_students": summary["failed_students"],
-    "average_percentage": summary["average_percentage"],
-    "average_sgpa": summary["average_sgpa"],
-    "students": df.to_dict(orient="records")
-}
+        "total_students": result["Total Students"],
+        "passed_students": result["Passed Students"],
+        "failed_students": result["Failed Students"],
+        "average_percentage": result["Average Percentage"]
+    }
