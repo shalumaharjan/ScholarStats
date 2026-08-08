@@ -74,14 +74,21 @@ print("\n")
 print("HIGHEST MARKS IN EACH SUBJECT")
 print("=" * 50)
 
-highest_subjects = highest_subject_chart(df)
+subjects = ["DSA", "WT", "OS", "OOP", "SAPM"]
 
-for subject, data in highest_subjects.items():
+for subject in subjects:
+
+    highest_mark = df[subject].max()
+
+    student = df.loc[
+        df[subject] == highest_mark,
+        "Name"
+    ].iloc[0]
 
     print(
         f"{subject} : "
-        f"{data['marks']} "
-        f"({data['student']})"
+        f"{highest_mark} "
+        f"({student})"
     )
 
 
@@ -105,8 +112,11 @@ print(
 print("\n")
 print("Opening charts...")
 
+# Pass vs Fail
 pass_fail_chart(df)
 
+# Highest SGPA
 highest_overall_chart(df)
 
+# Highest marks in each subject
 highest_subject_chart(df)
