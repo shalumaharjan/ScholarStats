@@ -13,6 +13,7 @@ import Reports from "../pages/Reports";
 
 import ProtectedLayout from "../pages/ProtectedLayout";
 import DashboardLayout from "../components/common/DashboardLayout";
+import StudentRecords from "../pages/StudentRecords";
 
 function AppRoutes() {
   return (
@@ -32,6 +33,7 @@ function AppRoutes() {
           <Route path="result-files" element={<ResultFiles />} />
           <Route path="semester-analysis" element={<SemesterAnalysis />} />
           <Route path="reports" element={<Reports />} />
+          <Route path="/student-records/:fileId" element={<StudentRecords />} />
           <Route path="under-construction" element={<UnderConstruction />} />
         </Route>
       </Route>
