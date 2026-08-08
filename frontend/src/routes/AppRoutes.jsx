@@ -17,25 +17,26 @@ import DashboardLayout from "../components/common/DashboardLayout";
 function AppRoutes() {
   return (
     <Routes>
-      {/* Public routes */}
+      {/* ✅ Public routes */}
       <Route path="/" element={<Navigate to="/login" replace />} />
       <Route path="/login" element={<Login />} />
 
-      {/* Protected routes */}
+      {/* ✅ Protected routes */}
       <Route element={<ProtectedLayout />}>
-        {/* Persistent dashboard layout */}
+        {/* Dashboard layout wrapper */}
         <Route element={<DashboardLayout />}>
-          <Route path="dashboard" element={<Dashboard />} />
-          <Route path="student-files" element={<StudentFiles />} />
-          <Route path="fetch-result" element={<FetchResult />} />
-          <Route path="fetch-status" element={<FetchStatus />} />
-          <Route path="result-files" element={<ResultFiles />} />
-          <Route path="semester-analysis" element={<SemesterAnalysis />} />
-          <Route path="reports" element={<Reports />} />
-          <Route path="under-construction" element={<UnderConstruction />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/student-files" element={<StudentFiles />} />
+          <Route path="/fetch-result" element={<FetchResult />} />
+          <Route path="/fetch-status" element={<FetchStatus />} />
+          <Route path="/result-files" element={<ResultFiles />} />
+          <Route path="/semester-analysis" element={<SemesterAnalysis />} />
+          <Route path="/reports" element={<Reports />} />
+          <Route path="/under-construction" element={<UnderConstruction />} />
         </Route>
       </Route>
-      {/* Unknown route */}
+
+      {/* ❌ Unknown route */}
       <Route path="*" element={<NotFound />} />
     </Routes>
   );

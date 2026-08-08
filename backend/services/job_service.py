@@ -33,21 +33,21 @@ def create_fetch_job(data):
     checker = HeadlessResultChecker()
 
     try:
-        result = fetcher.fetch_result(student)
+        result = checker.check_result(student)
 
-        if result is None:
+        if result["status"] == "error":
             return {
                 "success": False,
                 "fetchJobId": "JOB-001",
-                "message": "Result fetch failed"
+                "message": result.get("message", "Result fetch failed")
             }
 
         return {
             "success": True,
             "fetchJobId": "JOB-001",
             "message": "Result fetched successfully",
-            "result": result.to_dict(orient="records")
+            "result": result["data"]
         }
 
     finally:
-        fetcher.close()
+        checker.close()

@@ -31,37 +31,30 @@ function Login() {
     return !newErrors.username && !newErrors.password;
   };
 
-  const handleLogin = async (event) => {
-    event.preventDefault();
 
-    if (!validateForm()) {
-      return;
-    }
+const handleLogin = async (event) => {
+  event.preventDefault();
 
-    try {
-      setIsLoggingIn(true);
-      await login(username.trim(), password);
-      toast.success("Login successful! Welcome to ScholarStats.");
-      navigate("/dashboard", {
-        replace: true,
-      });
-    } catch (error) {
-      console.error("Login error:", error);
+  if (!validateForm()) return;
 
-      if (!error.response) {
-        toast.error(
-          "Unable to connect to the server. Please check your connection.",
-        );
-        return;
-      }
+try {
+  setIsLoggingIn(true);
 
-      toast.error(
-        error.response?.data?.detail || "Invalid username or password.",
-      );
-    } finally {
-      setIsLoggingIn(false);
-    }
-  };
+  const res = await login(username.trim(), password);
+
+  // Save the token so it can be attached to future requests
+  localStorage.setItem("token", res.access_token);
+
+  toast.success("Login successful!");
+
+  navigate("/dashboard", { replace: true });
+} catch (error) {
+  console.error("Login error:", error);
+  toast.error("Login failed");
+} finally {
+  setIsLoggingIn(false);
+}
+}
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-100 px-4 font-biryani">

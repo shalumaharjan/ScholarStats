@@ -78,6 +78,25 @@ def login_user(user: UserCreate, response: Response, db: Session):
         "token_type": "bearer"
     }
 
+# =========================
+# CURRENT USER
+# =========================
+
+def get_current_user(request: Request):
+    token = request.cookies.get("access_token")
+
+    if not token:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+
+    username = verify_access_token(token)
+
+    if not username:
+        raise HTTPException(status_code=401, detail="Invalid or expired token")
+
+    return {
+        "authenticated": True,
+        "username": username
+    }
 
 # =========================
 # LOGOUT
