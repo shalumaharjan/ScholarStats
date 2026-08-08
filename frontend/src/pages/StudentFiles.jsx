@@ -168,30 +168,45 @@ function StudentFiles() {
     }
   };
 
+  const totalFiles = savedFiles.length;
+
+  const readyForFetch = savedFiles.filter(
+    (file) => file.upload_status === "Uploaded" && file.total_students > 0,
+  ).length;
+
+  const totalRecords = savedFiles.reduce(
+    (total, file) => total + (file.total_students || 0),
+    0,
+  );
+
+  const totalPrograms = new Set(
+    savedFiles.map((file) => file.program).filter(Boolean),
+  ).size;
+
   const summaryCards = [
     {
       title: "Total Files",
-      value: "12",
-      description: "Uploaded semester files",
+      value: totalFiles,
+      description: "Uploaded student files",
       icon: FileSpreadsheet,
     },
     {
       title: "Ready for Fetch",
-      value: "10",
-      description: "Validated files",
+      value: readyForFetch,
+      description: "Files ready for result fetching",
       icon: FileCheck,
     },
     {
-      title: "Extraction Failed",
-      value: "2",
-      description: "Need correction",
-      icon: AlertCircle,
-    },
-    {
       title: "Total Records",
-      value: "320",
+      value: totalRecords,
       description: "Student lookup records",
       icon: GraduationCap,
+    },
+    {
+      title: "Programs",
+      value: totalPrograms,
+      description: "Programs with uploaded files",
+      icon: CheckCircle,
     },
   ];
 
