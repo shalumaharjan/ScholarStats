@@ -5,9 +5,9 @@ from sqlalchemy import (
     DateTime,
     ForeignKey
 )
-from datetime import datetime
 
 from sqlalchemy.orm import relationship
+from sqlalchemy.sql import func
 from database.connection import Base
 
 class StudentFile(Base):
@@ -18,15 +18,6 @@ class StudentFile(Base):
         Integer,
         primary_key=True,
         autoincrement=True
-    )
-
-    uploaded_by = Column(
-        Integer,
-        ForeignKey(
-            "users.id",
-            ondelete="CASCADE"
-        ),
-        nullable=False
     )
 
     file_name = Column(
@@ -54,20 +45,35 @@ class StudentFile(Base):
 
     uploaded_at = Column(
         DateTime,
-        default=datetime.utcnow
+        server_default=func.now()
     )
 
-    user = relationship(
-        "User",
-        back_populates="student_files"
+    program = Column(
+        String(100)
     )
 
-    fetch_jobs = relationship(
-        "FetchJob",
-        back_populates="student_file"
+    academic_year = Column(
+        String(20)
+    )
+
+    academic_session = Column(
+        String(30)
+    )
+
+    semester = Column(
+        Integer
     )
 
     records = relationship(
-        "StudentFileRecord",
-        back_populates="student_file"
-    )
+    "StudentFileRecord",
+    back_populates="student_file",
+    cascade="all, delete-orphan",
+    passive_deletes=True
+)
+
+    fetch_jobs = relationship(
+    "FetchJob",
+    back_populates="student_file",
+    cascade="all, delete-orphan",
+    passive_deletes=True
+)

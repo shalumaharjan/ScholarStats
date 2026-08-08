@@ -4,9 +4,6 @@ from config.settings import settings
 from fastapi import Header, HTTPException, Cookie
 
 def create_access_token(data: dict):
-    print("SECRET:", settings.SECRET_KEY)
-    print("ALGORITHM:", settings.ALGORITHM)
-    print("EXPIRE:", settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     to_encode = data.copy()
     expire = datetime.now(timezone.utc) + timedelta(
         minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES
