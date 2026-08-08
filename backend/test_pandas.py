@@ -1,37 +1,112 @@
 from services.file_service import read_excel_files
 from services.analysis_service import analyze_students
+
 from services.chart_service import (
-    show_student_summary,
-    show_highest_marks
+    pass_fail_chart,
+    highest_overall_chart,
+    highest_subject_chart
 )
 
-# Read all Excel files
+
+# ==========================================
+# READ EXCEL FILES
+# ==========================================
+
 df = read_excel_files()
 
-# Analyze data
-result = analyze_students(df)
+if df.empty:
+    print("No Excel files found in uploads folder.")
+    exit()
 
-print("=" * 40)
+
+# ==========================================
+# ANALYZE STUDENTS
+# ==========================================
+
+df, summary = analyze_students(df)
+
+
+# ==========================================
+# RESULT SUMMARY
+# ==========================================
+
+print("\n")
 print("STUDENT RESULT ANALYSIS")
-print("=" * 40)
+print("=" * 50)
 
-print(f"Total Students  : {result['Total Students']}")
-print(f"Passed Students : {result['Passed Students']}")
-print(f"Failed Students : {result['Failed Students']}")
-print(f"Pass Percentage : {result['Pass Percentage']}%")
-print(f"Fail Percentage : {result['Fail Percentage']}%")
+print(f"Total Students     : {summary['total_students']}")
+print(f"Passed Students    : {summary['passed_students']}")
+print(f"Failed Students    : {summary['failed_students']}")
+print(f"Average Percentage : {summary['average_percentage']}%")
+print(f"Average SGPA       : {summary['average_sgpa']}")
 
-print("\nHighest Marks in Each Subject")
-print("-" * 40)
 
-for subject, data in result["Highest Marks"].items():
-    print(f"{subject:5} : {data['Highest Mark']} ({data['Student']})")
+# ==========================================
+# HIGHEST SGPA
+# ==========================================
 
-print("\nStudent Details")
-print("-" * 40)
+print("\n")
+print("HIGHEST SGPA")
+print("=" * 50)
 
-print(result["Student Details"])
+highest_sgpa = df["SGPA"].max()
 
-# Show Charts
-show_student_summary(result)
-show_highest_marks(result)
+top_students = df[
+    df["SGPA"] == highest_sgpa
+]
+
+print(f"Highest SGPA : {highest_sgpa}")
+
+for _, student in top_students.iterrows():
+
+    print(
+        f"Student ID : {student['Student_ID']} | "
+        f"Name : {student['Name']} | "
+        f"SGPA : {student['SGPA']}"
+    )
+
+
+# ==========================================
+# HIGHEST MARKS IN EACH SUBJECT
+# ==========================================
+
+print("\n")
+print("HIGHEST MARKS IN EACH SUBJECT")
+print("=" * 50)
+
+highest_subjects = highest_subject_chart(df)
+
+for subject, data in highest_subjects.items():
+
+    print(
+        f"{subject} : "
+        f"{data['marks']} "
+        f"({data['student']})"
+    )
+
+
+# ==========================================
+# STUDENT DETAILS
+# ==========================================
+
+print("\n")
+print("STUDENT DETAILS")
+print("=" * 50)
+
+print(
+    df.to_string(index=False)
+)
+
+
+# ==========================================
+# CHARTS
+# ==========================================
+
+print("\n")
+print("Opening charts...")
+
+pass_fail_chart(df)
+
+highest_overall_chart(df)
+
+highest_subject_chart(df)
