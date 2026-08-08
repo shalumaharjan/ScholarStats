@@ -9,10 +9,10 @@ class User(Base):
     username = Column(String(100), unique=True, index=True, nullable=False)
     hashed_password = Column(String(255), nullable=False)
 
-    student_files = relationship(
-        "StudentFile",
-        back_populates="user"
-    )
+    # student_files = relationship(
+    #     "StudentFile",
+    #     back_populates="user"
+    # )
 
     activity_logs = relationship(
     "ActivityLog",

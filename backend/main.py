@@ -16,6 +16,7 @@ import models.fetch_job_item
 from routes.auth import router as auth_router
 from routes.fetch_jobs import router as fetch_jobs_router
 from routes.fetch_routes import router as fetch_router
+from routes.student_files import router as student_files_router
 
 Base.metadata.create_all(bind=engine)
 
@@ -34,3 +35,4 @@ app.add_middleware(
 app.include_router(auth_router)
 app.include_router(fetch_jobs_router)
 app.include_router(fetch_router)
+app.include_router(student_files_router)

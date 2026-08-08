@@ -1,5 +1,3 @@
-from datetime import datetime
-
 from sqlalchemy import (
     Column,
     Integer,
@@ -9,7 +7,7 @@ from sqlalchemy import (
 )
 
 from sqlalchemy.orm import relationship
-
+from sqlalchemy.sql import func
 from database.connection import Base
 
 class StudentFileRecord(Base):
@@ -31,20 +29,29 @@ class StudentFileRecord(Base):
         nullable=False
     )
 
-    symbol_no = Column(
+    crn = Column(
         String(30),
-        unique=True,
         nullable=False,
         index=True
     )
 
-    registration_no = Column(
+    ern = Column(
         String(30),
+        index=True
+    )
+
+    registration_no = Column(
+        String(50),
         index=True
     )
 
     student_name = Column(
         String(150),
+        nullable=False
+    )
+
+    dob = Column(
+        String(20),
         nullable=False
     )
 
@@ -60,13 +67,13 @@ class StudentFileRecord(Base):
         Integer
     )
 
-    username = Column(
-        String(100)
-    )
+    # username = Column(
+    #     String(100)
+    # )
 
-    password = Column(
-        String(255)
-    )
+    # password = Column(
+    #     String(255)
+    # )
 
     processing_status = Column(
         String(30),
@@ -75,7 +82,7 @@ class StudentFileRecord(Base):
 
     created_at = Column(
         DateTime,
-        default=datetime.utcnow
+        server_default=func.now()
     )
 
     student_file = relationship(

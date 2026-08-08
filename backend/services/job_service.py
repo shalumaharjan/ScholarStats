@@ -33,7 +33,7 @@ def create_fetch_job(data):
     checker = HeadlessResultChecker()
 
     try:
-        result = fetcher.fetch_result(student)
+        result = checker.check_result(student)
 
         if result is None:
             return {
@@ -50,4 +50,4 @@ def create_fetch_job(data):
         }
 
     finally:
-        fetcher.close()
+        checker.close()
