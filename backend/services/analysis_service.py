@@ -13,53 +13,57 @@ SUBJECTS = [
     "SAPM"
 ]
 
-
-# =========================================================
-# GRADE CALCULATION
-# =========================================================
-
-def calculate_grade(percentage):
-
-    if percentage >= 90:
-        return "A+"
-
-    elif percentage >= 80:
-        return "A"
-
-    elif percentage >= 70:
-        return "B+"
-
-    elif percentage >= 60:
-        return "B"
-
-    elif percentage >= 50:
-        return "C+"
-
-    elif percentage >= 40:
-        return "C"
-
-    else:
-        return "F"
-
+GRADES = [
+    "A",
+    "A-",
+    "B+",
+    "B",
+    "B-",
+    "C+",
+    "C",
+    "C-",
+    "D+",
+    "D",
+    "F",
+    "ABS"
+]
 
 # =========================================================
 # BACKLOG SUBJECT CALCULATION
 # =========================================================
-
 def get_backlog_subjects(row):
-
     backlog = []
-
     for subject in SUBJECTS:
-
-        if row[subject] < 40:
+        grade = str(row[subject]).strip().upper()
+        if grade == "F":
             backlog.append(subject)
+    return backlog
 
-    if backlog:
-        return ", ".join(backlog)
+def calculate_sgpa_grade(sgpa):
+    if sgpa >= 3.7:
+        return "A"
+    elif sgpa >= 3.3:
+        return "B+"
+    elif sgpa >= 3.0:
+        return "B"
+    elif sgpa >= 2.0:
+        return "C"
+    else:
+        return "F"
 
-    return "None"
+def calculate_status(row):
 
+    # Check subject grades
+    for subject in SUBJECTS:
+        grade = str(row[subject]).strip().upper()
+        if grade in ["F", "ABS"]:
+            return "Fail"
+
+    # Check SGPA
+    sgpa = str(row["SGPA"]).strip()
+    if sgpa == "-" or sgpa == "":
+        return "Fail"
+    return "Pass"
 
 # =========================================================
 # ANALYZE STUDENTS
@@ -70,33 +74,36 @@ def analyze_students(df):
     # Make a copy so original DataFrame is not changed
     df = df.copy()
 
+    # Convert SGPA to numeric
+    df["SGPA"] = pd.to_numeric(
+        df["SGPA"],
+        errors="coerce"
+    )
+    df["SGPA"] = df["SGPA"].fillna(0)
+
     # -----------------------------------------------------
     # Make sure marks are numeric
     # -----------------------------------------------------
 
     for subject in SUBJECTS:
-
-        df[subject] = pd.to_numeric(
-            df[subject],
-            errors="coerce"
-        )
+        df[subject] = df[subject].astype(str)
 
     # -----------------------------------------------------
     # Total marks
     # -----------------------------------------------------
 
-    df["Total"] = df[SUBJECTS].sum(axis=1)
+    # df["Total"] = df[SUBJECTS].sum(axis=1)
 
     # -----------------------------------------------------
     # Percentage
     # 5 subjects × 100 = 500
     # -----------------------------------------------------
 
-    df["Percentage"] = (
-        df["Total"] / 500
-    ) * 100
+    # df["Percentage"] = (
+    #     df["Total"] / 500
+    # ) * 100
 
-    df["Percentage"] = df["Percentage"].round(2)
+    # df["Percentage"] = df["Percentage"].round(2)
 
     # -----------------------------------------------------
     # Status
@@ -104,10 +111,8 @@ def analyze_students(df):
     # Student must get at least 40 in EVERY subject.
     # -----------------------------------------------------
 
-    df["Status"] = df[SUBJECTS].apply(
-        lambda row: "Pass"
-        if (row >= 40).all()
-        else "Fail",
+    df["Status"] = df.apply(
+        calculate_status,
         axis=1
     )
 
@@ -118,14 +123,6 @@ def analyze_students(df):
     df["Backlog Subjects"] = df.apply(
         get_backlog_subjects,
         axis=1
-    )
-
-    # -----------------------------------------------------
-    # Grade
-    # -----------------------------------------------------
-
-    df["Grade"] = df["Percentage"].apply(
-        calculate_grade
     )
 
     # =====================================================
@@ -155,42 +152,20 @@ def analyze_students(df):
     )
 
     # =====================================================
-    # HIGHEST MARKS IN EACH SUBJECT
-    # =====================================================
-
-    highest_marks = {}
-
-    for subject in SUBJECTS:
-
-        index = df[subject].idxmax()
-
-        highest_marks[subject] = {
-            "student_id": int(df.loc[index, "Student_ID"]),
-            "name": str(df.loc[index, "Name"]),
-            "marks": int(df.loc[index, subject])
-        }
-
-    # =====================================================
     # HIGHEST OVERALL PERFORMANCE
     # =====================================================
 
-    highest_index = df["Percentage"].idxmax()
+    highest_index = df["SGPA"].idxmax()
 
     highest_student = {
         "student_id": int(
-            df.loc[highest_index, "Student_ID"]
+            df.loc[highest_index,"Student_ID"]
         ),
         "name": str(
-            df.loc[highest_index, "Name"]
+            df.loc[highest_index,"Name"]
         ),
-        "total": int(
-            df.loc[highest_index, "Total"]
-        ),
-        "percentage": float(
-            df.loc[highest_index, "Percentage"]
-        ),
-        "grade": str(
-            df.loc[highest_index, "Grade"]
+        "sgpa": float(
+            df.loc[highest_index,"SGPA"]
         )
     }
 
@@ -207,29 +182,75 @@ def analyze_students(df):
     # GRADE DISTRIBUTION
     # =====================================================
 
+    df["Grade"] = df["SGPA"].apply(
+        calculate_sgpa_grade
+    )
+
     grade_distribution = (
         df["Grade"]
         .value_counts()
         .to_dict()
     )
 
+    subject_performance = {}
+    total = len(df)
+
+    for subject in SUBJECTS:
+        failed = int(
+            (df[subject] == "F").sum()
+        )
+        passed = total - failed
+        subject_performance[subject] = {
+            "pass": passed,
+            "fail": failed,
+            "pass_percentage": round(
+                (passed / total) * 100,
+                2
+            )
+        }
+   # =====================================================
+    #subject-grade-distribution
+       # =====================================================
+    subject_grade_distribution = {}
+    for subject in SUBJECTS:
+        df[subject] = (
+            df[subject]
+            .astype(str)
+            .str.strip()
+            .str.upper()
+            .replace({
+                "ABSENT": "ABS",
+                "ABS ": "ABS",
+                "A.B.S": "ABS",
+            })
+        )
+        distribution = (
+            df[subject]
+            .value_counts()
+            .to_dict()
+        )
+        for grade in GRADES:
+            if grade not in distribution:
+                distribution[grade] = 0
+        subject_grade_distribution[subject] = distribution 
+
     # =====================================================
     # BACKLOG STUDENTS
     # =====================================================
 
     backlog_students = []
-
     for _, row in df.iterrows():
+        subjects = []
+        for subject in SUBJECTS:
+            grade = str(row[subject]).strip().upper()
+            if grade in ["F", "ABS", "ABSENT"]:
+                subjects.append(subject)
 
-        if row["Status"] == "Fail":
-
-            subjects = []
-
-            for subject in SUBJECTS:
-
-                if row[subject] < 40:
-                    subjects.append(subject)
-
+        sgpa = str(row["SGPA"]).strip()
+        if sgpa == "-":
+            if not subjects:
+                subjects.append("Incomplete")
+        if subjects:
             backlog_students.append({
                 "student_id": int(row["Student_ID"]),
                 "name": str(row["Name"]),
@@ -242,30 +263,25 @@ def analyze_students(df):
 
     summary = {
         "total_students": total_students,
-
         "passed_students": passed_students,
-
         "failed_students": failed_students,
-
         "pass_percentage": round(
             pass_percentage,
             2
         ),
-
-        "fail_percentage": round(
-            fail_percentage,
+        "average_sgpa": round(
+            float(df["SGPA"].mean()),
             2
         ),
-
-        "highest_marks": highest_marks,
-
-        "highest_overall": highest_student,
-
-        "pass_fail": pass_fail,
-
-        "grade_distribution": grade_distribution,
-
-        "backlog_students": backlog_students
+        "highest_student": highest_student,
+        "subject_performance": subject_performance,
+        "subject_grade_distribution":
+            subject_grade_distribution,
+        "grade_distribution":
+            grade_distribution,
+        "backlog_students":
+            backlog_students
     }
+    df = df.fillna("")
 
     return df, summary

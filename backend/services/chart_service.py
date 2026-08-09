@@ -232,13 +232,9 @@ def create_grade_chart(df):
 # =========================================================
 
 def create_all_charts(df):
-
     return {
-        "highest_marks": create_highest_marks_chart(df),
-
+        "highest_marks":create_highest_marks_chart(df),
         "student_performance": create_performance_chart(df),
-
         "pass_fail": create_pass_fail_chart(df),
-
-        "grade_distribution": create_grade_chart(df)
+        "grade_distribution": create_grade_distribution_chart(df)
     }
