@@ -76,3 +76,9 @@ class FetchJob(Base):
         back_populates="fetch_jobs"
     )
 
+    result_file = relationship(
+        "ResultFile",
+        back_populates="fetch_job",
+        uselist=False
+    )
+

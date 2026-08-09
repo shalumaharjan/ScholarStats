@@ -10,6 +10,7 @@ from routes.fetch_jobs import router as fetch_jobs_router
 from routes.fetch_routes import router as fetch_router
 from routes.student_files import router as student_files_router
 from routes.fetch_status import router as fetch_status_router
+from routes.result_files import router as result_files_router
 
 import models
 
@@ -43,6 +44,7 @@ app.include_router(fetch_jobs_router)
 app.include_router(fetch_router)
 app.include_router(student_files_router)
 app.include_router(fetch_status_router)
+app.include_router(result_files_router)
 
 # ============================================================
 # ROOT
