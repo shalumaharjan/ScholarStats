@@ -5,8 +5,8 @@ from database.connection import Base, engine
 
 from routes.auth import router as auth_router
 from routes.fetch_jobs import router as fetch_jobs_router
-from routes.fetch_routes import router as fetch_router
 from routes.student_files import router as student_files_router
+from routes.fetch_routes import router as fetch_router
 
 import models
 
