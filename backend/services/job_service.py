@@ -50,7 +50,7 @@ def process_fetch_job(job_id: int, db: Session):
     job.started_at = datetime.now(timezone.utc)
     db.commit()
 
-    checker = HeadlessResultChecker()
+    checker = HeadlessResultChecker(headless=True)
     processed = 0
     failed = 0
 

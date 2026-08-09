@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends # Reads from the database
 from sqlalchemy.orm import Session
 
 from schemas.fetch_job import FetchJobRequest

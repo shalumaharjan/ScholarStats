@@ -8,7 +8,7 @@ from config.settings import settings
 
 
 class HeadlessResultChecker:
-    def __init__(self, headless=False):
+    def __init__(self, headless=True):
         self.options = webdriver.ChromeOptions()
 
         if headless:
