@@ -1,9 +1,10 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from database.connection import Base, engine
+
 from routes.result import router as results_router
 from routes.analysis import router as analysis_router
-
 from routes.auth import router as auth_router
 from routes.fetch_jobs import router as fetch_jobs_router
 from routes.fetch_routes import router as fetch_router
@@ -12,29 +13,23 @@ from routes.fetch_status import router as fetch_status_router
 
 import models
 
-
 app = FastAPI(
-    title="ScholarStats API",
-    description="Student Result Analysis API",
-    version="1.0.0"
+    title="ScholarStats API"
 )
 
 
 # ============================================================
 # CORS
 # ============================================================
-
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "http://localhost:5173",
-        "http://127.0.0.1:5173"
+        "http://localhost:5173"
     ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"]
 )
-
 
 # ============================================================
 # ROUTES
@@ -49,11 +44,9 @@ app.include_router(fetch_router)
 app.include_router(student_files_router)
 app.include_router(fetch_status_router)
 
-
 # ============================================================
 # ROOT
 # ============================================================
-
 # @app.get("/")
 # def root():
 #     return {
