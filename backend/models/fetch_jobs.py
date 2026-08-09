@@ -65,9 +65,11 @@ class FetchJob(Base):
     )
 
     items = relationship(
-        "FetchJobItem",
-        back_populates="job"
-    )
+    "FetchJobItem",
+    back_populates="job",
+    cascade="all, delete-orphan",
+    passive_deletes=True
+)
 
     student_file = relationship(
         "StudentFile",

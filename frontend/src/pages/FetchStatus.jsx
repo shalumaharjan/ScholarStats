@@ -1,71 +1,69 @@
+import { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { CheckCircle, Clock, Loader2, Users, XCircle } from "lucide-react";
+import axiosInstance from "../utils/axiosInstance";
 
 function FetchStatus() {
-  const summaryCards = [
-    {
-      title: "Total Students",
-      value: "45",
-      description: "Students in selected file",
-      icon: Users,
-    },
-    {
-      title: "Pending",
-      value: "12",
-      description: "Waiting to be fetched",
-      icon: Clock,
-    },
-    {
-      title: "Successful",
-      value: "30",
-      description: "Results fetched",
-      icon: CheckCircle,
-    },
-    {
-      title: "Failed",
-      value: "3",
-      description: "Need retry or correction",
-      icon: XCircle,
-    },
-  ];
+  const [statusData, setStatusData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [searchParams] = useSearchParams();
 
-  const studentFetchRecords = [
-    {
-      id: 1,
-      examRollNumber: "24530044",
-      studentName: "Ram Sharma",
-      status: "Success",
-      message: "Result fetched successfully",
-      attempt: 1,
-      fetchedAt: "10:31 AM",
-    },
-    {
-      id: 2,
-      examRollNumber: "24530090",
-      studentName: "Sita Thapa",
-      status: "Processing",
-      message: "Fetching result from portal",
-      attempt: 1,
-      fetchedAt: "-",
-    },
-    {
-      id: 3,
-      examRollNumber: "24530088",
-      studentName: "Hari Adhikari",
-      status: "Pending",
-      message: "Waiting for fetch process",
-      attempt: 0,
-      fetchedAt: "-",
-    },
-    {
-      id: 4,
-      examRollNumber: "24530077",
-      studentName: "Nisha Karki",
-      status: "Failed",
-      message: "Invalid DOB or result not found",
-      attempt: 1,
-      fetchedAt: "-",
-    },
-  ];
+  const jobId = searchParams.get("jobId");
+
+  const fetchStatus = async () => {
+    try {
+      setLoading(true);
+      const response = await axiosInstance.get(
+        jobId ? `/api/fetch-status/${jobId}` : "/api/fetch-status/latest",
+      );
+      setStatusData(response.data);
+    } catch (error) {
+      console.error("Fetch status error:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchStatus();
+
+    const interval = setInterval(() => {
+      fetchStatus();
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, [jobId]);
+
+  const summaryCards = statusData
+    ? [
+        {
+          title: "Total Students",
+          value: statusData.summary.total,
+          description: "Students in selected file",
+          icon: Users,
+        },
+        {
+          title: "Pending",
+          value: statusData.summary.pending,
+          description: "Waiting to be fetched",
+          icon: Clock,
+        },
+        {
+          title: "Successful",
+          value: statusData.summary.success,
+          description: "Results fetched",
+          icon: CheckCircle,
+        },
+        {
+          title: "Failed",
+          value: statusData.summary.failed,
+          description: "Need retry or correction",
+          icon: XCircle,
+        },
+      ]
+    : [];
+
+  const studentFetchRecords = statusData?.records || [];
 
   const getStatusBadge = (status) => {
     if (status === "Success") {
@@ -94,17 +92,23 @@ function FetchStatus() {
             </p>
 
             <h2 className="mt-1 font-raleway text-lg font-bold text-gray-900">
-              BCA Sixth Semester Result Fetch
+              {statusData?.file?.file_name || "Loading fetch details..."}
             </h2>
 
             <p className="mt-1 text-sm text-secondary">
-              Spring 2025 | Regular/Retake | BCA_6th_Sem_Students.xlsx
+              {statusData?.file?.academic_session}{" "}
+              {statusData?.file?.academic_year}
+              {" | "}
+              Semester {statusData?.file?.semester}
             </p>
           </div>
 
           <div className="flex w-fit items-center gap-2 rounded-md border border-blue-200 bg-blue-50 px-3 py-2 text-sm font-bold text-primary">
-            <Loader2 size={15} className="animate-spin" />
-            Processing
+            {statusData?.job_status === "Processing" && (
+              <Loader2 size={15} className="animate-spin" />
+            )}
+
+            {statusData?.job_status || "Pending"}
           </div>
         </div>
       </div>
@@ -159,6 +163,7 @@ function FetchStatus() {
 
           <button
             type="button"
+            onClick={fetchStatus}
             className="w-full rounded-lg bg-primary px-4 py-2.5 text-sm font-bold text-white transition hover:bg-[#0069d9] focus:outline-none focus:ring-2 focus:ring-blue-300 sm:w-auto"
           >
             Refresh Status

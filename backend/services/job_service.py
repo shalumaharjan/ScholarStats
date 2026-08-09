@@ -1,53 +1,43 @@
-from services.fetch_results import HeadlessResultChecker
+from sqlalchemy.orm import Session
 
-def create_fetch_job(data):
-    # 🔹 Mapping
-    exam_type_map = {
-        "Regular/Retake": "Regular_Retake",
-        "Rechecking/Retotaling": "Rechecking_Retotaling",
-        "Chance": "Chance"
+from models.fetch_jobs import FetchJob
+from models.fetch_job_item import FetchJobItem
+from models.student_file_records import StudentFileRecord
+
+def create_fetch_job(data, db: Session):
+    # Create Fetch Job
+    fetch_job = FetchJob(
+        file_id=data.studentFileId,
+        job_status="Pending"
+    )
+    db.add(fetch_job)
+    db.flush()
+
+    # Get students from uploaded file
+    students = (
+        db.query(StudentFileRecord)
+        .filter(
+            StudentFileRecord.file_id == data.studentFileId
+        )
+        .all()
+    )
+
+    # Create Fetch Job Items
+    for student in students:
+        item = FetchJobItem(
+            job_id=fetch_job.job_id,
+            record_id=student.record_id,
+            fetch_status="Pending"
+        )
+        db.add(item)
+
+    # Update total students
+    fetch_job.total_records = len(students)
+    db.commit()
+
+    return {
+        "success": True,
+        "fetchJobId": fetch_job.job_id,
+        "message": "Fetch job created successfully",
+        "totalStudents": len(students)
     }
-
-    semester_map = {
-        "First": "1st",
-        "Second": "2nd",
-        "Third": "3rd",
-        "Fourth": "4th",
-        "Fifth": "5th",
-        "Sixth": "6th",
-        "Seventh": "7th",
-        "Eighth": "8th"
-    }
-
-    # 🔹 Build student data
-    student = {
-        "ern": "24530044",  # later you will fetch from DB
-        "dob": "12-01-2005",
-        "exam_type": exam_type_map[data.resultType],
-        "year": data.academicYear,
-        "session": data.academicSession,
-        "semester": semester_map[data.semester],
-        "program": "Bachelor of Computer Application"
-    }
-
-    checker = HeadlessResultChecker()
-
-    try:
-        result = checker.check_result(student)
-
-        if result["status"] == "error":
-            return {
-                "success": False,
-                "fetchJobId": "JOB-001",
-                "message": result.get("message", "Result fetch failed")
-            }
-
-        return {
-            "success": True,
-            "fetchJobId": "JOB-001",
-            "message": "Result fetched successfully",
-            "result": result["data"]
-        }
-
-    finally:
-        checker.close()
