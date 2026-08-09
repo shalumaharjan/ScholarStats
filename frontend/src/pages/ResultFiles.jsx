@@ -1,4 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import axiosInstance from "../utils/axiosInstance";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 import {
   BarChart3,
@@ -16,77 +19,51 @@ function ResultFiles() {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
 
+  const [resultFiles, setResultFiles] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
+
+  const fetchResultFiles = async () => {
+    try {
+      setLoading(true);
+      const response = await axiosInstance.get("/api/result-files");
+      setResultFiles(response.data);
+    } catch (error) {
+      console.error("Result files error:", error);
+      toast.error("Failed to fetch result files");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchResultFiles();
+  }, []);
+
   const summaryCards = [
     {
       title: "Total Result Files",
-      value: "8",
+      value: resultFiles.length,
       description: "Generated Excel files",
       icon: FileSpreadsheet,
     },
     {
       title: "Completed",
-      value: "6",
+      value: resultFiles.filter((file) => file.status === "Completed").length,
       description: "Ready for download",
       icon: CheckCircle,
     },
     {
       title: "Processing",
-      value: "2",
+      value: resultFiles.filter((file) => file.status === "Processing").length,
       description: "Fetch jobs running",
       icon: Loader2,
     },
     {
       title: "Total Result Records",
-      value: "286",
+      value: resultFiles.reduce((total, file) => total + file.students, 0),
       description: "Fetched student results",
       icon: Users,
-    },
-  ];
-
-  const resultFiles = [
-    {
-      id: 1,
-      fileName: "BCA_3rd_Fall_2025_JOB001.xlsx",
-      program: "BCA",
-      semester: "Third",
-      academicYear: "2025",
-      session: "Fall",
-      students: 45,
-      status: "Completed",
-      generatedDate: "1 August 2026",
-    },
-    {
-      id: 2,
-      fileName: "BCA_6th_Spring_2025_JOB002.xlsx",
-      program: "BCA",
-      semester: "Sixth",
-      academicYear: "2025",
-      session: "Spring",
-      students: 42,
-      status: "Completed",
-      generatedDate: "28 July 2026",
-    },
-    {
-      id: 3,
-      fileName: "BCA_5th_Fall_2024_JOB003.xlsx",
-      program: "BCA",
-      semester: "Fifth",
-      academicYear: "2024",
-      session: "Fall",
-      students: 40,
-      status: "Processing",
-      generatedDate: "-",
-    },
-    {
-      id: 4,
-      fileName: "BCA_4th_Spring_2024_JOB004.xlsx",
-      program: "BCA",
-      semester: "Fourth",
-      academicYear: "2024",
-      session: "Spring",
-      students: 38,
-      status: "Failed",
-      generatedDate: "-",
     },
   ];
 
@@ -94,7 +71,7 @@ function ResultFiles() {
     const matchesSearch =
       file.fileName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       file.program.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      file.semester.toLowerCase().includes(searchTerm.toLowerCase());
+      String(file.semester).toLowerCase().includes(searchTerm.toLowerCase());
 
     const matchesStatus =
       statusFilter === "All" || file.status === statusFilter;
@@ -113,6 +90,26 @@ function ResultFiles() {
       return "border-red-200 bg-red-50 text-red-700";
     }
     return "border-gray-200 bg-gray-50 text-gray-700";
+  };
+
+  const handleDelete = async (id) => {
+    const confirmDelete = window.confirm(
+      "Are you sure you want to delete this result file?",
+    );
+
+    if (!confirmDelete) return;
+
+    try {
+      await axiosInstance.delete(`/api/result-files/${id}`);
+
+      toast.success("Result file deleted successfully");
+
+      fetchResultFiles();
+    } catch (error) {
+      console.error(error);
+
+      toast.error("Failed to delete result file");
+    }
   };
 
   return (
@@ -297,7 +294,7 @@ function ResultFiles() {
                     </td>
 
                     <td className="px-5 py-3.5 text-sm text-secondary">
-                      {file.generatedDate}
+                      {new Date(file.generatedDate).toLocaleDateString()}
                     </td>
 
                     {/* Actions */}
@@ -307,6 +304,7 @@ function ResultFiles() {
                           <button
                             type="button"
                             title="View result file"
+                            onClick={() => navigate(`/result-files/${file.id}`)}
                             aria-label={`View ${file.fileName}`}
                             className="flex h-8 w-8 items-center justify-center rounded-md border border-gray-200 text-gray-700 transition hover:border-primary hover:bg-blue-50 hover:text-primary"
                           >
@@ -316,6 +314,12 @@ function ResultFiles() {
                           <button
                             type="button"
                             title="Download Excel"
+                            onClick={() =>
+                              window.open(
+                                `${import.meta.env.VITE_FASTAPI_API_BASE_URL}/api/result-files/${file.id}/download`,
+                                "_blank",
+                              )
+                            }
                             aria-label={`Download ${file.fileName}`}
                             className="flex h-8 w-8 items-center justify-center rounded-md border border-green-200 text-green-700 transition hover:bg-green-50"
                           >
@@ -325,6 +329,9 @@ function ResultFiles() {
                           <button
                             type="button"
                             title="Analyze results"
+                            onClick={() =>
+                              navigate(`/semester-analysis?fileId=${file.id}`)
+                            }
                             aria-label={`Analyze ${file.fileName}`}
                             className="flex h-8 w-8 items-center justify-center rounded-md border border-purple-200 text-purple-700 transition hover:bg-purple-50"
                           >
@@ -334,6 +341,7 @@ function ResultFiles() {
                           <button
                             type="button"
                             title="Delete file"
+                            onClick={() => handleDelete(file.id)}
                             aria-label={`Delete ${file.fileName}`}
                             className="flex h-8 w-8 items-center justify-center rounded-md border border-red-200 text-red-600 transition hover:bg-red-50"
                           >
