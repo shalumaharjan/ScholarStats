@@ -1,193 +1,147 @@
-import { useState } from "react";
+import { useSearchParams } from "react-router-dom";
+import { useEffect, useState } from "react";
+import axiosInstance from "../utils/axiosInstance";
+
 import {
   Award,
   BarChart3,
   CheckCircle,
   FileSpreadsheet,
-  GraduationCap,
   Percent,
   TrendingUp,
   XCircle,
   AlertTriangle,
+  Users,
 } from "lucide-react";
 
 import {
   BarChart,
   Bar,
-  CartesianGrid,
-  ResponsiveContainer,
-  Tooltip,
   XAxis,
   YAxis,
-  PieChart as RechartsPieChart,
-  Pie,
-  Cell,
-  Legend,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
 } from "recharts";
 
 function SemesterAnalysis() {
+  const [analysisData, setAnalysisData] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  const [resultFiles, setResultFiles] = useState([]);
+
+  const [searchParams] = useSearchParams();
+
+  const fileId = searchParams.get("fileId");
+
   const [selectedFileId, setSelectedFileId] = useState("");
   const [analysisGenerated, setAnalysisGenerated] = useState(false);
 
-  const resultFiles = [
-    {
-      id: "1",
-      fileName: "BCA_3rd_Fall_2025_JOB001.xlsx",
-      program: "BCA",
-      semester: "Third",
-      academicYear: "2025",
-      session: "Fall",
-      students: 45,
-    },
-    {
-      id: "2",
-      fileName: "BCA_6th_Spring_2025_JOB002.xlsx",
-      program: "BCA",
-      semester: "Sixth",
-      academicYear: "2025",
-      session: "Spring",
-      students: 42,
-    },
-  ];
+  const [topStudents, setTopStudents] = useState([]);
+  const [backlogStudents, setBacklogStudents] = useState([]);
 
-  const analysisSummary = [
-    {
-      title: "Total Students",
-      value: "45",
-      description: "Students analyzed",
-      icon: GraduationCap,
-    },
-    {
-      title: "Passed Students",
-      value: "38",
-      description: "Passed all subjects",
-      icon: CheckCircle,
-    },
-    {
-      title: "Failed Students",
-      value: "7",
-      description: "One or more backlogs",
-      icon: XCircle,
-    },
-    {
-      title: "Pass Percentage",
-      value: "84.4%",
-      description: "Overall semester result",
-      icon: Percent,
-    },
-    {
-      title: "Average SGPA",
-      value: "3.21",
-      description: "Semester average",
-      icon: TrendingUp,
-    },
-  ];
+  const analysisSummary = analysisData
+    ? [
+        {
+          title: "Total Students",
+          value: analysisData.summary.total_students,
+          description: "Students analyzed",
+          icon: Users,
+        },
+        {
+          title: "Passed Students",
+          value: analysisData.summary.passed_students,
+          description: "Successfully passed",
+          icon: CheckCircle,
+        },
+        {
+          title: "Failed Students",
+          value: analysisData.summary.failed_students,
+          description: "Students with backlogs",
+          icon: XCircle,
+        },
+        {
+          title: "Pass Percentage",
+          value: `${analysisData.summary.pass_percentage}%`,
+          description: "Overall semester result",
+          icon: Percent,
+        },
+        {
+          title: "Average SGPA",
+          value: analysisData.summary.average_sgpa,
+          description: "Semester average SGPA",
+          icon: TrendingUp,
+        },
+      ]
+    : [];
 
-  const subjectPerformance = [
-    {
-      subject: "DSA",
-      passed: 39,
-      failed: 6,
-      passRate: 86.7,
-    },
-    {
-      subject: "OOP",
-      passed: 40,
-      failed: 5,
-      passRate: 88.9,
-    },
-    {
-      subject: "OS",
-      passed: 36,
-      failed: 9,
-      passRate: 80,
-    },
-    {
-      subject: "SAPM",
-      passed: 41,
-      failed: 4,
-      passRate: 91.1,
-    },
-    {
-      subject: "WT-I",
-      passed: 38,
-      failed: 7,
-      passRate: 84.4,
-    },
-  ];
+  const fetchResultFiles = async () => {
+    try {
+      const response = await axiosInstance.get("/api/result-files");
 
-  const gradeDistribution = [
-    { grade: "A", students: 8 },
-    { grade: "A-", students: 10 },
-    { grade: "B+", students: 9 },
-    { grade: "B", students: 7 },
-    { grade: "B-", students: 4 },
-    { grade: "C+", students: 3 },
-    { grade: "C", students: 2 },
-    { grade: "F", students: 2 },
-  ];
+      setResultFiles(response.data);
+    } catch (error) {
+      console.error("Result files error:", error);
+    }
+  };
 
-  const gradeColors = [
-    "#007bff",
-    "#28a745",
-    "#20c997",
-    "#6f42c1",
-    "#ffc107",
-    "#fd7e14",
-    "#6c757d",
-    "#dc3545",
-  ];
+  const fetchAnalysis = async (id = selectedFileId) => {
+    try {
+      const response = await axiosInstance.get(
+        `/api/analysis/result-files/${id}`,
+      );
+      setAnalysisData(response.data);
+    } catch (error) {
+      console.error("Analysis error:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  const topStudents = [
-    {
-      ern: "24530044",
-      name: "Ram Sharma",
-      sgpa: 3.92,
-    },
-    {
-      ern: "24530090",
-      name: "Sita Thapa",
-      sgpa: 3.84,
-    },
-    {
-      ern: "24530071",
-      name: "Nisha Karki",
-      sgpa: 3.84,
-    },
-    {
-      ern: "24530055",
-      name: "Hari Adhikari",
-      sgpa: 3.68,
-    },
-    {
-      ern: "24530058",
-      name: "Hari Adhikari",
-      sgpa: 3.63,
-    },
-  ];
+  useEffect(() => {
+    fetchResultFiles();
+    if (fileId) {
+      setSelectedFileId(fileId);
+      fetchAnalysis(fileId);
+    } else {
+      setLoading(false);
+    }
+  }, [fileId]);
 
-  const backlogStudents = [
-    {
-      ern: "24530018",
-      name: "Aayush Karki",
-      failedSubjects: ["OS", "WT-I"],
-    },
-    {
-      ern: "24530029",
-      name: "Priya Rai",
-      failedSubjects: ["DSA"],
-    },
-    {
-      ern: "24530057",
-      name: "Suman Thapa",
-      failedSubjects: ["OOP", "OS", "SAPM"],
-    },
-    {
-      ern: "24530081",
-      name: "Roshani Sharma",
-      failedSubjects: ["WT-I"],
-    },
-  ];
+  const subjectPerformance = analysisData
+    ? Object.entries(analysisData.summary.subject_performance || {}).map(
+        ([subject, data]) => ({
+          subject,
+          passPercentage: data.pass_percentage,
+        }),
+      )
+    : [];
+
+  const fetchTopStudents = async () => {
+    try {
+      const response = await axiosInstance.get(
+        `/api/analysis/result-files/${selectedFileId}/top-students`,
+      );
+
+      setTopStudents(response.data.top_students);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const subjectGradeDistribution =
+    analysisData?.summary?.subject_grade_distribution || {};
+
+  // const gradeColors = [
+  //   "#007bff",
+  //   "#28a745",
+  //   "#20c997",
+  //   "#6f42c1",
+  //   "#ffc107",
+  //   "#fd7e14",
+  //   "#6c757d",
+  //   "#dc3545",
+  // ];
 
   const rankedStudents = [...topStudents]
     .sort((a, b) => b.sgpa - a.sgpa)
@@ -211,14 +165,32 @@ function SemesterAnalysis() {
     (student) => student.rank <= 5,
   );
 
-  const handleGenerateAnalysis = () => {
+  const handleGenerateAnalysis = async () => {
     if (!selectedFileId) {
       alert("Please select a completed result file.");
       return;
     }
-
+    await fetchAnalysis(selectedFileId);
+    await fetchTopStudents();
+    await fetchBacklogs();
     setAnalysisGenerated(true);
   };
+
+  const fetchBacklogs = async () => {
+    try {
+      const response = await axiosInstance.get(
+        `/api/analysis/result-files/${selectedFileId}/backlogs`,
+      );
+
+      setBacklogStudents(response.data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  if (loading) {
+    return <div className="p-5 text-center">Loading analysis...</div>;
+  }
 
   return (
     <>
@@ -306,7 +278,7 @@ function SemesterAnalysis() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-5">
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-5">
             {analysisSummary.map((card) => {
               const Icon = card.icon;
 
@@ -341,144 +313,218 @@ function SemesterAnalysis() {
         </div>
       )}
 
-      {/* Performance charts */}
       {analysisGenerated && (
-        <div className="mt-5 grid grid-cols-1 gap-4 xl:grid-cols-2">
-          {/* Subject-wise performance */}
-          <div className="rounded-xl border border-gray-200 bg-white">
-            <div className="border-b border-gray-200 px-5 py-4">
-              <h2 className="font-raleway text-lg font-bold text-gray-900">
-                Subject-wise Performance
-              </h2>
+        <div className="grid grid-cols-1 gap-5 xl:grid-cols-[1.2fr_1fr]">
+          <div className="mt-5">
+            {/* Performance charts */}
+            {/* Subject-wise performance */}
+            <div className="rounded-xl border border-gray-200 bg-white">
+              <div className="border-b border-gray-200 px-5 py-4">
+                <h2 className="font-raleway text-lg font-bold text-gray-900">
+                  Subject-wise Performance
+                </h2>
 
-              <p className="mt-1 font-voces text-sm text-secondary">
-                Pass percentage of students in each subject.
-              </p>
-            </div>
+                <p className="mt-1 font-voces text-sm text-secondary">
+                  Pass percentage of students in each subject.
+                </p>
+              </div>
 
-            <div className="h-[350px] p-4">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart
-                  data={subjectPerformance}
-                  margin={{
-                    top: 10,
-                    right: 10,
-                    left: 0,
-                    bottom: 5,
-                  }}
-                >
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} />
+              <div className="h-[380px] p-5">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart
+                    data={subjectPerformance}
+                    margin={{
+                      top: 10,
+                      right: 10,
+                      left: 0,
+                      bottom: 5,
+                    }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="subject" />
+                    <YAxis
+                      domain={[0, 100]}
+                      tickFormatter={(value) => `${value}%`}
+                    />
+                    <Tooltip formatter={(value) => [`${value}%`, "Pass%"]} />
 
-                  <XAxis dataKey="subject" />
-
-                  <YAxis
-                    domain={[0, 100]}
-                    tickFormatter={(value) => `${value}%`}
-                  />
-
-                  <Bar
-                    dataKey="passRate"
-                    fill="#007bff"
-                    radius={[5, 5, 0, 0]}
-                  />
-                </BarChart>
-              </ResponsiveContainer>
+                    <Bar
+                      dataKey="passPercentage"
+                      fill="#007bff"
+                      radius={[5, 5, 0, 0]}
+                    />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
             </div>
           </div>
 
-          {/* Grade distribution */}
-          <div className="rounded-xl border border-gray-200 bg-white">
+          {/* Subject-wise details */}
+          <div className="mt-5 rounded-xl border border-gray-200 bg-white">
             <div className="border-b border-gray-200 px-5 py-4">
               <h2 className="font-raleway text-lg font-bold text-gray-900">
-                Grade Distribution
+                Subject-wise Result Details
               </h2>
 
               <p className="mt-1 font-voces text-sm text-secondary">
-                Distribution of grades obtained by students.
+                Passed, failed, and pass percentage details for each subject.
               </p>
             </div>
 
-            <div className="h-[350px] p-4">
-              <ResponsiveContainer width="100%" height="100%">
-                <RechartsPieChart>
-                  <Pie
-                    data={gradeDistribution}
-                    dataKey="students"
-                    nameKey="grade"
-                    cx="50%"
-                    cy="47%"
-                    innerRadius={60}
-                    outerRadius={100}
-                    paddingAngle={3}
-                    label={({ grade, students }) => `${grade}: ${students}`}
-                  >
-                    {gradeDistribution.map((item, index) => (
-                      <Cell
-                        key={item.grade}
-                        fill={gradeColors[index % gradeColors.length]}
-                      />
-                    ))}
-                  </Pie>
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-gray-200 bg-gray-50">
+                    <th className="px-5 py-3 text-left text-xs font-bold uppercase tracking-wide text-secondary">
+                      Subject
+                    </th>
 
-                  <Tooltip
-                    formatter={(value) => [`${value} students`, "Students"]}
-                  />
+                    <th className="px-5 py-3 text-center text-xs font-bold uppercase tracking-wide text-secondary">
+                      Passed
+                    </th>
 
-                  <Legend />
-                </RechartsPieChart>
-              </ResponsiveContainer>
+                    <th className="px-5 py-3 text-center text-xs font-bold uppercase tracking-wide text-secondary">
+                      Failed
+                    </th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  {Object.entries(analysisData.summary.subject_performance).map(
+                    ([subject, data]) => (
+                      <tr
+                        key={subject}
+                        className="border-b border-gray-100 transition-colors last:border-b-0 hover:bg-gray-50"
+                      >
+                        <td className="px-5 py-3.5 text-sm font-bold text-gray-800">
+                          {subject}
+                        </td>
+
+                        <td className="px-5 py-3.5 text-center text-sm font-bold text-green-700">
+                          {data.pass}
+                        </td>
+
+                        <td className="px-5 py-3.5 text-center text-sm font-bold text-red-600">
+                          {data.fail}
+                        </td>
+                      </tr>
+                    ),
+                  )}
+                </tbody>
+              </table>
             </div>
           </div>
         </div>
       )}
 
-      {/* Subject-wise details */}
       {analysisGenerated && (
         <div className="mt-5 rounded-xl border border-gray-200 bg-white">
           <div className="border-b border-gray-200 px-5 py-4">
             <h2 className="font-raleway text-lg font-bold text-gray-900">
-              Subject-wise Result Details
+              Subject-wise Grade Distribution
             </h2>
 
             <p className="mt-1 font-voces text-sm text-secondary">
-              Passed, failed, and pass percentage details for each subject.
+              Distribution of grades obtained by students in each subject.
             </p>
           </div>
 
+          {/* Table */}
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[700px]">
+            <table className="w-full min-w-[1300px]">
               <thead>
                 <tr className="border-b border-gray-200 bg-gray-50">
-                  <th className="px-5 py-3 text-left text-xs font-bold uppercase tracking-wide text-secondary">
+                  <th className="px-5 py-3 text-left text-xs font-bold uppercase text-secondary">
                     Subject
                   </th>
-
-                  <th className="px-5 py-3 text-left text-xs font-bold uppercase tracking-wide text-secondary">
-                    Passed
+                  <th className="px-5 py-3 text-center text-xs font-bold uppercase text-secondary">
+                    A
+                  </th>
+                  <th className="px-5 py-3 text-center text-xs font-bold uppercase text-secondary">
+                    A-
+                  </th>
+                  <th className="px-5 py-3 text-center text-xs font-bold uppercase text-secondary">
+                    B+
                   </th>
 
-                  <th className="px-5 py-3 text-left text-xs font-bold uppercase tracking-wide text-secondary">
-                    Failed
+                  <th className="px-5 py-3 text-center text-xs font-bold uppercase text-secondary">
+                    B
+                  </th>
+                  <th className="px-5 py-3 text-center text-xs font-bold uppercase text-secondary">
+                    B-
+                  </th>
+                  <th className="px-5 py-3 text-center text-xs font-bold uppercase text-secondary">
+                    C+
+                  </th>
+                  <th className="px-5 py-3 text-center text-xs font-bold uppercase text-secondary">
+                    C
+                  </th>
+                  <th className="px-5 py-3 text-center text-xs font-bold uppercase text-secondary">
+                    C-
+                  </th>
+                  <th className="px-5 py-3 text-center text-xs font-bold uppercase text-secondary">
+                    D+
+                  </th>
+                  <th className="px-5 py-3 text-center text-xs font-bold uppercase text-secondary">
+                    D
+                  </th>
+                  <th className="px-5 py-3 text-center text-xs font-bold uppercase text-secondary">
+                    F
+                  </th>
+                  <th className="px-5 py-3 text-center text-xs font-bold uppercase text-secondary">
+                    ABS
                   </th>
                 </tr>
               </thead>
-
               <tbody>
-                {subjectPerformance.map((subject) => (
+                {Object.entries(
+                  analysisData?.summary?.subject_grade_distribution || {},
+                ).map(([subject, grades]) => (
                   <tr
-                    key={subject.subject}
-                    className="border-b border-gray-100 transition-colors last:border-b-0 hover:bg-gray-50"
+                    key={subject}
+                    className="border-b border-gray-100 hover:bg-gray-50"
                   >
                     <td className="px-5 py-3.5 text-sm font-bold text-gray-800">
-                      {subject.subject}
+                      {subject}
+                    </td>
+                    <td className="px-5 py-3.5 text-center">
+                      {grades["A"] || 0}
+                    </td>
+                    <td className="px-5 py-3.5 text-center">
+                      {grades["A-"] || 0}
+                    </td>
+                    <td className="px-5 py-3.5 text-center">
+                      {grades["B+"] || 0}
+                    </td>
+                    <td className="px-5 py-3.5 text-center">
+                      {grades["B"] || 0}
+                    </td>
+                    <td className="px-5 py-3.5 text-center">
+                      {grades["B-"] || 0}
+                    </td>
+                    <td className="px-5 py-3.5 text-center">
+                      {grades["C"] || 0}
+                    </td>
+                    <td className="px-5 py-3.5 text-center">
+                      {grades["C+"] || 0}
                     </td>
 
-                    <td className="px-5 py-3.5 text-sm font-bold text-green-700">
-                      {subject.passed}
+                    <td className="px-5 py-3.5 text-center">
+                      {grades["C"] || 0}
                     </td>
 
-                    <td className="px-5 py-3.5 text-sm font-bold text-red-600">
-                      {subject.failed}
+                    <td className="px-5 py-3.5 text-center">
+                      {grades["C-"] || 0}
+                    </td>
+
+                    <td className="px-5 py-3.5 text-center">
+                      {grades["D+"] || 0}
+                    </td>
+                    <td className="px-5 py-3.5 text-center font-bold text-red-600">
+                      {grades["F"] || 0}
+                    </td>
+                    <td className="px-5 py-3.5 text-center font-bold text-orange-600">
+                      {grades["ABS"] || 0}
                     </td>
                   </tr>
                 ))}
@@ -532,7 +578,7 @@ function SemesterAnalysis() {
               <tbody>
                 {displayedTopStudents.map((student) => (
                   <tr
-                    key={student.ern}
+                    key={student.student_id}
                     className="border-b border-gray-100 transition-colors last:border-b-0 hover:bg-gray-50"
                   >
                     <td className="px-5 py-3.5">
@@ -552,7 +598,7 @@ function SemesterAnalysis() {
                     </td>
 
                     <td className="px-5 py-3.5 text-sm font-bold text-gray-800">
-                      {student.ern}
+                      {student.student_id}
                     </td>
 
                     <td className="px-5 py-3.5 text-sm text-secondary">
@@ -561,7 +607,7 @@ function SemesterAnalysis() {
 
                     <td className="px-5 py-3.5">
                       <span className="font-raleway text-base font-extrabold text-primary">
-                        {student.sgpa.toFixed(2)}
+                        {Number(student.sgpa).toFixed(2)}
                       </span>
                     </td>
                   </tr>
@@ -613,11 +659,11 @@ function SemesterAnalysis() {
               <tbody>
                 {backlogStudents.map((student) => (
                   <tr
-                    key={student.ern}
+                    key={student.student_id}
                     className="border-b border-gray-100 transition-colors last:border-b-0 hover:bg-gray-50"
                   >
                     <td className="px-5 py-3.5 text-sm font-bold text-gray-800">
-                      {student.ern}
+                      {student.student_id}
                     </td>
 
                     <td className="px-5 py-3.5 text-sm text-secondary">
@@ -626,7 +672,7 @@ function SemesterAnalysis() {
 
                     <td className="px-5 py-3.5">
                       <div className="flex flex-wrap gap-2">
-                        {student.failedSubjects.map((subject) => (
+                        {student.subjects.map((subject) => (
                           <span
                             key={subject}
                             className="rounded-md border border-red-200 bg-red-50 px-2.5 py-1 text-xs font-bold text-red-600"
