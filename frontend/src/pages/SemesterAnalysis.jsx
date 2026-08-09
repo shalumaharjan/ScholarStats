@@ -91,8 +91,11 @@ function SemesterAnalysis() {
         `/api/analysis/result-files/${id}`,
       );
       setAnalysisData(response.data);
+      return true;
     } catch (error) {
       console.error("Analysis error:", error);
+      setAnalysisData(null);
+      return false;
     } finally {
       setLoading(false);
     }
@@ -192,7 +195,12 @@ function SemesterAnalysis() {
       alert("Please select a completed result file.");
       return;
     }
-    await fetchAnalysis(selectedFileId);
+    const success = await fetchAnalysis(selectedFileId);
+    if (!success) {
+      setAnalysisGenerated(false);
+      alert("Unable to generate analysis for this result file.");
+      return;
+    }
     await fetchTopStudents();
     await fetchBacklogs();
     setAnalysisGenerated(true);
@@ -459,7 +467,7 @@ function SemesterAnalysis() {
         </div>
       )}
 
-      {analysisGenerated && (
+      {analysisGenerated && analysisData && (
         <div className="mt-5 rounded-xl border border-gray-200 bg-white">
           <div className="border-b border-gray-200 px-5 py-4">
             <h2 className="font-raleway text-lg font-bold text-gray-900">
