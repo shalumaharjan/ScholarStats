@@ -1,31 +1,44 @@
-import pandas as pd
 import os
+import pandas as pd
 
 
 UPLOAD_FOLDER = "uploads"
 
 
 def read_excel_files():
+    """
+    Read all Excel files from uploads folder
+    and combine them into one DataFrame.
+    """
 
-    files = [
-        file
-        for file in os.listdir(UPLOAD_FOLDER)
-        if file.endswith(".xlsx")
-    ]
+    dataframes = []
 
-    if not files:
+    for file_name in sorted(os.listdir(UPLOAD_FOLDER)):
+
+        if file_name.lower().endswith((".xlsx", ".xls")):
+
+            file_path = os.path.join(
+                UPLOAD_FOLDER,
+                file_name
+            )
+
+            print(f"Reading: {file_name}")
+
+            df = pd.read_excel(
+                file_path,
+                engine="openpyxl"
+            )
+
+            dataframes.append(df)
+
+    if not dataframes:
         raise FileNotFoundError(
-            "No Excel file found in uploads folder."
+            "No Excel files found in uploads folder."
         )
 
-    file_path = os.path.join(
-        UPLOAD_FOLDER,
-        files[0]
+    combined_df = pd.concat(
+        dataframes,
+        ignore_index=True
     )
 
-    df = pd.read_excel(
-        file_path,
-        engine="openpyxl"
-    )
-
-    return df
+    return combined_df
