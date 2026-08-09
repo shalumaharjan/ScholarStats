@@ -19,6 +19,7 @@ import ConfirmDeleteModal from "../components/common/ConfirmDeleteModal";
 function ResultFiles() {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
+  const [viewMessage, setViewMessage] = useState("");
 
   const [resultFiles, setResultFiles] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -301,12 +302,17 @@ function ResultFiles() {
                           <button
                             type="button"
                             title="View result file"
-                            onClick={() => navigate(`/result-files/${file.id}`)}
+                            onClick={() => setViewMessage(file.id)}
                             aria-label={`View ${file.fileName}`}
                             className="flex h-8 w-8 items-center justify-center rounded-md border border-gray-200 text-gray-700 transition hover:border-primary hover:bg-blue-50 hover:text-primary"
                           >
                             <Eye size={14} />
                           </button>
+                          {viewMessage === file.id && (
+                            <p className="mt-2 font-voces text-xs font-bold text-red-600">
+                              Preview coming soon.
+                            </p>
+                          )}
 
                           <button
                             type="button"

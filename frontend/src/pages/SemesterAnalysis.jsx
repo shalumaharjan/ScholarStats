@@ -108,10 +108,32 @@ function SemesterAnalysis() {
     }
   }, [fileId]);
 
+  const getSubjectShortName = (subject) => {
+    if (!subject) return "";
+
+    const words = subject.trim().split(/\s+/);
+
+    // Already a short subject code like DSA, WT, OS
+    if (words.length === 1 && subject.length <= 6) {
+      return subject.toUpperCase();
+    }
+
+    // Create abbreviation from first letters
+    return words
+      .filter(
+        (word) =>
+          !["and", "of", "the", "for", "in", "to"].includes(word.toLowerCase()),
+      )
+      .map((word) => word[0])
+      .join("")
+      .toUpperCase();
+  };
+
   const subjectPerformance = analysisData
     ? Object.entries(analysisData.summary.subject_performance || {}).map(
         ([subject, data]) => ({
-          subject,
+          fullSubject: subject,
+          shortSubject: getSubjectShortName(subject),
           passPercentage: data.pass_percentage,
         }),
       )
@@ -341,12 +363,32 @@ function SemesterAnalysis() {
                     }}
                   >
                     <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="subject" />
+                    <XAxis dataKey="shortSubject" />
                     <YAxis
                       domain={[0, 100]}
                       tickFormatter={(value) => `${value}%`}
                     />
-                    <Tooltip formatter={(value) => [`${value}%`, "Pass%"]} />
+                    <Tooltip
+                      content={({ active, payload }) => {
+                        if (active && payload && payload.length) {
+                          const item = payload[0].payload;
+
+                          return (
+                            <div className="rounded-lg border border-gray-200 bg-white px-4 py-3 shadow-md">
+                              <p className="font-raleway text-sm font-bold text-gray-800">
+                                {item.fullSubject}
+                              </p>
+
+                              <p className="mt-1 font-voces text-sm text-primary">
+                                Pass %: {item.passPercentage}%
+                              </p>
+                            </div>
+                          );
+                        }
+
+                        return null;
+                      }}
+                    />
 
                     <Bar
                       dataKey="passPercentage"
@@ -675,9 +717,10 @@ function SemesterAnalysis() {
                         {student.subjects.map((subject) => (
                           <span
                             key={subject}
+                            title={subject}
                             className="rounded-md border border-red-200 bg-red-50 px-2.5 py-1 text-xs font-bold text-red-600"
                           >
-                            {subject}
+                            {getSubjectShortName(subject)}
                           </span>
                         ))}
                       </div>
