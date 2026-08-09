@@ -14,6 +14,7 @@ import {
   Trash2,
   Users,
 } from "lucide-react";
+import ConfirmDeleteModal from "../components/common/ConfirmDeleteModal";
 
 function ResultFiles() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -21,6 +22,8 @@ function ResultFiles() {
 
   const [resultFiles, setResultFiles] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  const [isDeleting, setIsDeleting] = useState(false);
   const navigate = useNavigate();
 
   const fetchResultFiles = async () => {
@@ -92,23 +95,17 @@ function ResultFiles() {
     return "border-gray-200 bg-gray-50 text-gray-700";
   };
 
-  const handleDelete = async (id) => {
-    const confirmDelete = window.confirm(
-      "Are you sure you want to delete this result file?",
-    );
-
-    if (!confirmDelete) return;
-
+  const handleDeleteFile = async () => {
     try {
-      await axiosInstance.delete(`/api/result-files/${id}`);
-
+      setIsDeleting(true);
+      await axiosInstance.delete(`/api/result-files/${deleteTarget.id}`);
       toast.success("Result file deleted successfully");
-
+      setDeleteTarget(null);
       fetchResultFiles();
     } catch (error) {
-      console.error(error);
-
       toast.error("Failed to delete result file");
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -341,7 +338,7 @@ function ResultFiles() {
                           <button
                             type="button"
                             title="Delete file"
-                            onClick={() => handleDelete(file.id)}
+                            onClick={() => setDeleteTarget(file)}
                             aria-label={`Delete ${file.fileName}`}
                             className="flex h-8 w-8 items-center justify-center rounded-md border border-red-200 text-red-600 transition hover:bg-red-50"
                           >
@@ -390,6 +387,15 @@ function ResultFiles() {
           </table>
         </div>
       </div>
+      <ConfirmDeleteModal
+        isOpen={deleteTarget !== null}
+        title="Delete Result File?"
+        message="Are you sure you want to delete"
+        itemName={deleteTarget?.fileName}
+        isDeleting={isDeleting}
+        onCancel={() => setDeleteTarget(null)}
+        onConfirm={handleDeleteFile}
+      />
     </>
   );
 }
