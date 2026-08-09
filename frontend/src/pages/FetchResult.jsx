@@ -2,7 +2,9 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Search, Loader2 } from "lucide-react";
 import { toast } from "react-toastify";
+import { useSearchParams } from "react-router-dom";
 import axiosInstance from "../utils/axiosInstance";
+import { getStudentFiles } from "../services/studentFileService";
 
 function FetchResult() {
   const navigate = useNavigate();
@@ -12,6 +14,10 @@ function FetchResult() {
   const [loadingFiles, setLoadingFiles] = useState(true);
   const [fetching, setFetching] = useState(false);
 
+  const [searchParams] = useSearchParams();
+
+  const fileIdFromUrl = searchParams.get("fileId");
+
   const [formData, setFormData] = useState({
     studentFileId: "",
     resultType: "Regular/Retake",
@@ -20,34 +26,57 @@ function FetchResult() {
     academicSession: "Spring",
   });
 
+  const fetchStudentFiles = async () => {
+    try {
+      setLoadingFiles(true);
+      const data = await getStudentFiles();
+      setStudentFiles(data);
+    } catch (error) {
+      console.error("Failed to load student files:", error);
+      toast.error("Failed to load student files");
+    } finally {
+      setLoadingFiles(false);
+    }
+  };
+
+  const convertSemester = (number) => {
+    const semesters = {
+      1: "First",
+      2: "Second",
+      3: "Third",
+      4: "Fourth",
+      5: "Fifth",
+      6: "Sixth",
+      7: "Seventh",
+      8: "Eighth",
+    };
+    return semesters[number] || "";
+  };
+
   // Temporary frontend data
   // Later this data will come from backend:
   // GET http://localhost:5000/api/student-files
 
   useEffect(() => {
-    const uploadedFiles = [
-      {
-        id: "1",
-        fileName: "BCA_2024.xlsx",
-        program: "Bachelor of Computer Application",
-        studentCount: 320,
-      },
-      {
-        id: "2",
-        fileName: "BCE_2024.xlsx",
-        program: "Bachelor of Computer Engineering",
-        studentCount: 280,
-      },
-    ];
-    setStudentFiles(uploadedFiles);
-    if (uploadedFiles.length > 0) {
-      setFormData((previous) => ({
-        ...previous,
-        studentFileId: uploadedFiles[0].id,
-      }));
-    }
-    setLoadingFiles(false);
+    fetchStudentFiles();
   }, []);
+
+  useEffect(() => {
+    if (fileIdFromUrl && studentFiles.length > 0) {
+      const selectedFile = studentFiles.find(
+        (file) => file.file_id === Number(fileIdFromUrl),
+      );
+      if (selectedFile) {
+        setFormData((previous) => ({
+          ...previous,
+          studentFileId: selectedFile.file_id,
+          academicYear: selectedFile.academic_year,
+          academicSession: selectedFile.academic_session,
+          semester: convertSemester(selectedFile.semester),
+        }));
+      }
+    }
+  }, [fileIdFromUrl, studentFiles]);
 
   const handleInputChange = (event) => {
     const { name, value } = event.target;
@@ -65,12 +94,9 @@ function FetchResult() {
 
     try {
       setFetching(true);
-
       const response = await axiosInstance.post("/fetch-jobs", formData);
-
       alert(response.data.message || "Result fetch process started.");
-
-      navigate("/fetch-status");
+      navigate(`/fetch-status?jobId=${response.data.fetchJobId}`);
     } catch (error) {
       console.error("Fetch job error:", error);
 
@@ -122,9 +148,13 @@ function FetchResult() {
                 )}
 
                 {studentFiles.map((file) => (
-                  <option key={file.id} value={file.id}>
-                    {file.fileName} - {file.program} ({file.studentCount}{" "}
-                    Students)
+                  <option key={file.file_id} value={file.file_id}>
+                    {file.original_file_name}
+                    {" - "}
+                    {file.program}
+                    {" ("}
+                    {file.total_students}
+                    {" Students)"}
                   </option>
                 ))}
               </select>
