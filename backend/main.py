@@ -54,8 +54,8 @@ app.include_router(fetch_status_router)
 # ROOT
 # ============================================================
 
-@app.get("/")
-def root():
-    return {
-        "message": "ScholarStats API is running"
-    }
+# @app.get("/")
+# def root():
+#     return {
+#         "message": "ScholarStats API is running"
+#     }
