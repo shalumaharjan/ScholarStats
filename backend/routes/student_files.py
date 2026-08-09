@@ -30,7 +30,9 @@ os.makedirs(
     exist_ok=True
 )
 
-
+# ==========================
+# UPLOAD STUDENT FILE
+# ==========================
 @router.post("/upload")
 async def upload_file(
     file: UploadFile = File(...),
@@ -41,21 +43,45 @@ async def upload_file(
     db: Session = Depends(get_db)
 ):
 
-    if not file.filename.endswith((".xlsx", ".xls")):
+    # Validate file type
+    if not file.filename.endswith(
+        (".xlsx", ".xls")
+    ):
         raise HTTPException(
             status_code=400,
             detail="Only Excel files are allowed"
         )
 
-    extension = os.path.splitext(file.filename)[1]
-    stored_filename = f"{uuid.uuid4()}{extension}"
-    file_path = os.path.join(UPLOAD_FOLDER, stored_filename)
+    # Generate unique filename
+    extension = os.path.splitext(
+        file.filename
+    )[1]
 
-    with open(file_path, "wb") as buffer:
-        buffer.write(await file.read())
+    stored_filename = (
+        f"{uuid.uuid4()}{extension}"
+    )
+
+    file_path = os.path.join(
+        UPLOAD_FOLDER,
+        stored_filename
+    )
+
+    # Save file
+    with open(
+        file_path,
+        "wb"
+    ) as buffer:
+        buffer.write(
+            await file.read()
+        )
+
 
     try:
-        df = pd.read_excel(file_path, header=0)
+        # Read Excel
+        df = pd.read_excel(
+            file_path,
+            header=0
+        )
         df.rename(
             columns={
                 "DOB": "DD",
@@ -64,9 +90,16 @@ async def upload_file(
             },
             inplace=True
         )
+        print(df.columns.tolist())
+        print(df.head())
 
-        df = df.dropna(subset=["CRN"])
+        # Remove empty rows
+        df = df.dropna(
+            subset=["CRN"]
+        )
 
+
+        # Create student file record
         student_file = StudentFile(
             file_name=stored_filename,
             original_file_name=file.filename,
@@ -81,64 +114,107 @@ async def upload_file(
         db.add(student_file)
         db.flush()
 
+
+        # Insert students
         for _, row in df.iterrows():
+
+            # Create DOB
             dob = (
                 f"{int(row['MM']):02d}/"
                 f"{int(row['DD']):02d}/"
                 f"{int(row['YYYY'])}"
             )
-
+            print("StudentFileRecord columns:", StudentFileRecord.__table__.columns.keys())
             student_record = StudentFileRecord(
                 file_id=student_file.file_id,
                 crn=str(int(row["CRN"])),
                 ern=str(int(row["ERN"])),
-                student_name=str(row["Name of the student"]),
-                registration_no=str(row["Registration No."]),
+                student_name=str(
+                    row["Name of the student"]
+                ),
+                registration_no=str(
+                    row["Registration No."]
+                ),
                 dob=dob,
                 program=program,
                 semester=semester,
                 processing_status="Pending"
             )
             db.add(student_record)
-
         db.commit()
 
+
         return {
-            "message": "Student file uploaded successfully",
-            "file_id": student_file.file_id,
-            "filename": file.filename,
-            "total_students": len(df)
+            "message":
+            "Student file uploaded successfully",
+
+            "file_id":
+            student_file.file_id,
+
+            "filename":
+            file.filename,
+
+            "total_students":
+            len(df)
         }
+
 
     except Exception as e:
         db.rollback()
+
+        # remove uploaded file if failed
         if os.path.exists(file_path):
             os.remove(file_path)
-        raise HTTPException(status_code=500, detail=str(e))
 
+        raise HTTPException(
+            status_code=500,
+            detail=str(e)
+        )
+
+# ==========================
+# GET UPLOADED FILES
+# ==========================
 
 @router.get("")
-def get_files(db: Session = Depends(get_db)):
+def get_files(
+    db: Session = Depends(get_db)
+):
     files = (
         db.query(StudentFile)
-        .order_by(StudentFile.uploaded_at.desc())
+        .order_by(
+            StudentFile.uploaded_at.desc()
+        )
         .all()
     )
     return files
 
 
+# ==========================
+# GET STUDENT RECORDS BY FILE
+# ==========================
+
 @router.get("/{file_id}/records")
-def get_student_records(file_id: int, db: Session = Depends(get_db)):
+def get_student_records(
+    file_id: int,
+    db: Session = Depends(get_db)
+):
+
     records = (
         db.query(StudentFileRecord)
-        .filter(StudentFileRecord.file_id == file_id)
+        .filter(
+            StudentFileRecord.file_id == file_id
+        )
         .all()
     )
+
     return records
 
 
 @router.delete("/{file_id}")
-def delete_student_file(file_id: int, db: Session = Depends(get_db)):
+def delete_student_file(
+    file_id: int,
+    db: Session = Depends(get_db)
+):
     student_file = (
         db.query(StudentFile)
         .filter(StudentFile.file_id == file_id)
@@ -146,16 +222,31 @@ def delete_student_file(file_id: int, db: Session = Depends(get_db)):
     )
 
     if not student_file:
-        raise HTTPException(status_code=404, detail="Student file not found")
+        raise HTTPException(
+            status_code=404,
+            detail="Student file not found"
+        )
 
-    file_path = os.path.join(UPLOAD_FOLDER, student_file.file_name)
+    file_path = os.path.join(
+        UPLOAD_FOLDER,
+        student_file.file_name
+    )
 
     try:
         db.delete(student_file)
         db.commit()
+
         if os.path.exists(file_path):
             os.remove(file_path)
-        return {"message": "Student file deleted successfully"}
+
+        return {
+            "message": "Student file deleted successfully"
+        }
+
     except Exception as e:
         db.rollback()
-        raise HTTPException(status_code=500, detail=str(e))
+
+        raise HTTPException(
+            status_code=500,
+            detail=str(e)
+        )
