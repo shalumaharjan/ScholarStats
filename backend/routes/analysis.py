@@ -1,6 +1,11 @@
-from fastapi import APIRouter
+from sqlalchemy.orm import Session
+from fastapi import APIRouter, Depends, HTTPException
 
-from services.file_service import read_excel_files
+from database.connection import get_db
+from models.result_files import ResultFile
+import os
+import pandas as pd
+
 from services.analysis_service import analyze_students
 
 
@@ -14,11 +19,27 @@ router = APIRouter(
 # COMPLETE ANALYSIS
 # ============================================================
 
-@router.get("/results")
-def get_analysis_results():
-
+@router.get("/result-files/{file_id}")
+def get_analysis_results(file_id:int,db:Session=Depends(get_db)):
     # Read Excel files
-    df = read_excel_files()
+    result_file = (
+        db.query(ResultFile)
+        .filter(
+            ResultFile.result_file_id == file_id
+        )
+        .first()
+    )
+    if not result_file:
+        raise HTTPException(
+            status_code=404,
+            detail="Result file not found"
+        )
+    BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    file_path = os.path.join(
+        BASE_DIR,
+        result_file.file_path
+    )
+    df = pd.read_excel(file_path)
 
     # Check if data exists
     if df.empty:
@@ -45,55 +66,65 @@ def get_analysis_results():
 # TOP 5 STUDENTS
 # ============================================================
 
-@router.get("/top-students")
-def get_top_students():
+@router.get("/result-files/{file_id}/top-students")
+def get_top_students(file_id:int,db:Session = Depends(get_db)):
+    result_file = (
+        db.query(ResultFile)
+        .filter(
+            ResultFile.result_file_id == file_id
+        )
+        .first()
+    )
+    if not result_file:
+        raise HTTPException(
+            status_code=404,
+            detail="Result file not found"
+        )
 
-    # Read Excel files
-    df = read_excel_files()
-
-    # Check if data exists
-    if df.empty:
-        return {
-            "message": "No Excel file found",
-            "top_students": []
-        }
-
-    # Analyze students
+    df = pd.read_excel(
+        result_file.file_path
+    )
     analyzed_df, summary = analyze_students(df)
 
-    # Sort by percentage and get first 5
-    top_5 = (
+    top_students = (
         analyzed_df
         .sort_values(
-            by="Percentage",
+            by="SGPA",
             ascending=False
         )
         .head(5)
     )
-
-    # Prepare response
     students = []
-
-    for _, student in top_5.iterrows():
-
+    for _, student in top_students.iterrows():
         students.append({
-            "student_id": int(
-                student["Student_ID"]
-            ),
-            "name": str(
-                student["Name"]
-            ),
-            "total": int(
-                student["Total"]
-            ),
-            "percentage": float(
-                student["Percentage"]
-            ),
-            "grade": str(
-                student["Grade"]
-            )
+            "student_id":
+                int(student["Student_ID"]),
+            "name":
+                str(student["Name"]),
+            "sgpa":
+                float(student["SGPA"])
         })
-
     return {
-        "top_students": students
+        "top_students":students
     }
+
+
+@router.get("/result-files/{file_id}/backlogs")
+def get_backlogs(file_id:int,db:Session = Depends(get_db)):
+    result_file = (
+        db.query(ResultFile)
+        .filter(
+            ResultFile.result_file_id == file_id
+        )
+        .first()
+    )
+    if not result_file:
+        raise HTTPException(
+            status_code=404,
+            detail="Result file not found"
+        )
+    df = pd.read_excel(
+        result_file.file_path
+    )
+    analyzed_df, summary = analyze_students(df)
+    return summary["backlog_students"]
