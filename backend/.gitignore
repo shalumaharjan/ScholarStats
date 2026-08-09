@@ -33,3 +33,6 @@ Thumbs.db
 *.egg-info/
 build/
 dist/
+
+# pdf
+generated_reports/

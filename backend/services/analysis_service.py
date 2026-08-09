@@ -5,13 +5,29 @@ import pandas as pd
 # SUBJECTS
 # =========================================================
 
-SUBJECTS = [
-    "DSA",
-    "WT",
-    "OS",
-    "OOP",
-    "SAPM"
-]
+def get_subjects(df):
+    ignore_columns = [
+        "SN",
+        "Student_ID",
+        "Exam_Roll_No",
+        "ERN",
+        "CRN",
+        "Registration No.",
+        "Name",
+        "Date of Birth",
+        "DOB",
+        "SGPA",
+        "Grade",
+        "Total",
+        "Percentage",
+        "Status",
+        "Backlog Subjects"
+    ]
+    subjects = []
+    for column in df.columns:
+        if column not in ignore_columns:
+            subjects.append(column)
+    return subjects
 
 GRADES = [
     "A",
@@ -31,11 +47,11 @@ GRADES = [
 # =========================================================
 # BACKLOG SUBJECT CALCULATION
 # =========================================================
-def get_backlog_subjects(row):
+def get_backlog_subjects(row, subjects):
     backlog = []
-    for subject in SUBJECTS:
+    for subject in subjects:
         grade = str(row[subject]).strip().upper()
-        if grade == "F":
+        if grade in ["F", "ABS"]:
             backlog.append(subject)
     return backlog
 
@@ -51,15 +67,11 @@ def calculate_sgpa_grade(sgpa):
     else:
         return "F"
 
-def calculate_status(row):
-
-    # Check subject grades
-    for subject in SUBJECTS:
+def calculate_status(row, subjects):
+    for subject in subjects:
         grade = str(row[subject]).strip().upper()
         if grade in ["F", "ABS"]:
             return "Fail"
-
-    # Check SGPA
     sgpa = str(row["SGPA"]).strip()
     if sgpa == "-" or sgpa == "":
         return "Fail"
@@ -85,8 +97,7 @@ def analyze_students(df):
     # Make sure marks are numeric
     # -----------------------------------------------------
 
-    for subject in SUBJECTS:
-        df[subject] = df[subject].astype(str)
+    subjects = get_subjects(df)
 
     # -----------------------------------------------------
     # Total marks
@@ -112,7 +123,7 @@ def analyze_students(df):
     # -----------------------------------------------------
 
     df["Status"] = df.apply(
-        calculate_status,
+        lambda row: calculate_status(row, subjects),
         axis=1
     )
 
@@ -121,7 +132,7 @@ def analyze_students(df):
     # -----------------------------------------------------
 
     df["Backlog Subjects"] = df.apply(
-        get_backlog_subjects,
+        lambda row: get_backlog_subjects(row, subjects),
         axis=1
     )
 
@@ -195,7 +206,7 @@ def analyze_students(df):
     subject_performance = {}
     total = len(df)
 
-    for subject in SUBJECTS:
+    for subject in subjects:
         failed = int(
             (df[subject] == "F").sum()
         )
@@ -212,7 +223,7 @@ def analyze_students(df):
     #subject-grade-distribution
        # =====================================================
     subject_grade_distribution = {}
-    for subject in SUBJECTS:
+    for subject in subjects:
         df[subject] = (
             df[subject]
             .astype(str)
@@ -237,24 +248,26 @@ def analyze_students(df):
     # =====================================================
     # BACKLOG STUDENTS
     # =====================================================
-
     backlog_students = []
     for _, row in df.iterrows():
-        subjects = []
-        for subject in SUBJECTS:
-            grade = str(row[subject]).strip().upper()
-            if grade in ["F", "ABS", "ABSENT"]:
-                subjects.append(subject)
-
+        failed_subjects = []
+        for subject in subjects:
+            grade = (
+                str(row[subject])
+                .strip()
+                .upper()
+            )
+            if grade in ["F", "ABS"]:
+                failed_subjects.append(subject)
         sgpa = str(row["SGPA"]).strip()
         if sgpa == "-":
-            if not subjects:
-                subjects.append("Incomplete")
-        if subjects:
+            if not failed_subjects:
+                failed_subjects.append("Incomplete")
+        if failed_subjects:
             backlog_students.append({
                 "student_id": int(row["Student_ID"]),
                 "name": str(row["Name"]),
-                "subjects": subjects
+                "subjects": failed_subjects
             })
 
     # =====================================================
@@ -262,6 +275,7 @@ def analyze_students(df):
     # =====================================================
 
     summary = {
+        "subjects": subjects,
         "total_students": total_students,
         "passed_students": passed_students,
         "failed_students": failed_students,
