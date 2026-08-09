@@ -18,6 +18,7 @@ import {
   X,
 } from "lucide-react";
 import { toast } from "react-toastify";
+import ConfirmDeleteModal from "../components/common/ConfirmDeleteModal";
 
 function StudentFiles() {
   const navigate = useNavigate();
@@ -754,60 +755,15 @@ function StudentFiles() {
         </div>
       )}
 
-      {deleteTarget && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 px-4 backdrop-blur-[2px]">
-          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
-            {/* Icon */}
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-red-50 text-red-600">
-              <Trash2 size={22} />
-            </div>
-
-            {/* Content */}
-            <h3 className="mt-4 font-raleway text-xl font-extrabold text-gray-900">
-              Delete Student File?
-            </h3>
-
-            <p className="mt-2 font-voces text-sm leading-6 text-secondary">
-              Are you sure you want to delete{" "}
-              <span className="font-bold text-gray-800">
-                {deleteTarget.original_file_name}
-              </span>
-              ? This will also remove all student records extracted from this
-              file.
-            </p>
-
-            {/* Warning */}
-            <div className="mt-4 rounded-lg bg-red-50 px-4 py-3">
-              <p className="font-voces text-sm text-red-700">
-                This action cannot be undone.
-              </p>
-            </div>
-
-            {/* Actions */}
-            <div className="mt-6 flex justify-end gap-3">
-              <button
-                type="button"
-                disabled={isDeleting}
-                onClick={() => setDeleteTarget(null)}
-                className="rounded-lg bg-gray-100 px-4 py-2.5 font-raleway text-sm font-bold text-gray-700 transition hover:bg-gray-200 disabled:cursor-not-allowed disabled:opacity-60"
-              >
-                Cancel
-              </button>
-
-              <button
-                type="button"
-                disabled={isDeleting}
-                onClick={handleDeleteFile}
-                className="flex items-center gap-2 rounded-lg bg-red-600 px-4 py-2.5 font-raleway text-sm font-bold text-white transition hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-60"
-              >
-                <Trash2 size={15} />
-
-                {isDeleting ? "Deleting..." : "Delete File"}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <ConfirmDeleteModal
+        isOpen={deleteTarget !== null}
+        title="Delete Student File?"
+        message="Are you sure you want to delete"
+        itemName={deleteTarget?.original_file_name}
+        isDeleting={isDeleting}
+        onCancel={() => setDeleteTarget(null)}
+        onConfirm={handleDeleteFile}
+      />
     </>
   );
 }
