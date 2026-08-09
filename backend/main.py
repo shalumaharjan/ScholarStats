@@ -12,6 +12,7 @@ from routes.student_files import router as student_files_router
 from routes.fetch_status import router as fetch_status_router
 from routes.result_files import router as result_files_router
 from routes import reports
+from routes import dashboard
 
 import models
 
@@ -36,6 +37,7 @@ app.add_middleware(
 # ============================================================
 # ROUTES
 # ============================================================
+app.include_router(dashboard.router)
 
 app.include_router(results_router)
 app.include_router(analysis_router)
