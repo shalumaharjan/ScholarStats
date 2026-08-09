@@ -1,124 +1,244 @@
-import pandas as pd
+import os
+
+import matplotlib
+
+matplotlib.use("Agg")
+
+import matplotlib.pyplot as plt
 
 
-# ==========================================
-# SUBJECT COLUMNS
-# ==========================================
-
-SUBJECTS = [
-    "DSA",
-    "WT",
-    "OS",
-    "OOP",
-    "SAPM"
-]
+CHART_FOLDER = "uploads/charts"
 
 
-# ==========================================
-# PREPARE STUDENT DATA
-# ==========================================
+# =========================================================
+# CREATE CHART FOLDER
+# =========================================================
 
-def prepare_student_data(df):
+def create_chart_folder():
 
-    df = df.copy()
-
-    # Calculate total marks
-    df["Total"] = df[SUBJECTS].sum(axis=1)
-
-    # Calculate percentage
-    df["Percentage"] = (
-        df["Total"] / (len(SUBJECTS) * 100)
-    ) * 100
-
-    # ==========================================
-    # CALCULATE GRADE
-    # ==========================================
-
-    def calculate_grade(percentage):
-
-        if percentage >= 90:
-            return "A+"
-
-        elif percentage >= 80:
-            return "A"
-
-        elif percentage >= 70:
-            return "B+"
-
-        elif percentage >= 60:
-            return "B"
-
-        elif percentage >= 50:
-            return "C+"
-
-        elif percentage >= 40:
-            return "C"
-
-        else:
-            return "F"
-
-    df["Grade"] = df["Percentage"].apply(
-        calculate_grade
+    os.makedirs(
+        CHART_FOLDER,
+        exist_ok=True
     )
 
-    # ==========================================
-    # CALCULATE STATUS
-    # ==========================================
 
-    df["Status"] = df["Percentage"].apply(
-        lambda percentage:
-        "Pass" if percentage >= 40 else "Fail"
+# =========================================================
+# HIGHEST MARKS CHART
+# =========================================================
+
+def create_highest_marks_chart(df):
+
+    create_chart_folder()
+
+    subjects = [
+        "DSA",
+        "WT",
+        "OS",
+        "OOP",
+        "SAPM"
+    ]
+
+    highest_marks = [
+        df[subject].max()
+        for subject in subjects
+    ]
+
+    plt.figure(figsize=(10, 6))
+
+    plt.bar(
+        subjects,
+        highest_marks
     )
 
-    return df
-
-
-# ==========================================
-# PASS VS FAIL DATA
-# ==========================================
-
-def get_pass_fail_data(df):
-
-    df = prepare_student_data(df)
-
-    passed = len(
-        df[df["Status"] == "Pass"]
+    plt.title(
+        "Highest Marks in Each Subject"
     )
 
-    failed = len(
-        df[df["Status"] == "Fail"]
+    plt.xlabel("Subjects")
+
+    plt.ylabel("Marks")
+
+    plt.ylim(0, 100)
+
+    plt.tight_layout()
+
+    path = os.path.join(
+        CHART_FOLDER,
+        "highest_marks.png"
     )
 
-    return {
-        "labels": ["Pass", "Fail"],
-        "values": [passed, failed]
-    }
+    plt.savefig(path)
+
+    plt.close()
+
+    return path
 
 
-# ==========================================
-# GRADE-WISE DATA
-# ==========================================
+# =========================================================
+# STUDENT PERFORMANCE CHART
+# =========================================================
 
-def get_grade_data(df):
+def create_performance_chart(df):
 
-    df = prepare_student_data(df)
+    create_chart_folder()
+
+    plt.figure(figsize=(12, 6))
+
+    plt.plot(
+        df["Name"],
+        df["Percentage"],
+        marker="o"
+    )
+
+    plt.title(
+        "Student Performance"
+    )
+
+    plt.xlabel("Students")
+
+    plt.ylabel("Percentage")
+
+    plt.xticks(
+        rotation=90
+    )
+
+    plt.ylim(0, 100)
+
+    plt.tight_layout()
+
+    path = os.path.join(
+        CHART_FOLDER,
+        "student_performance.png"
+    )
+
+    plt.savefig(path)
+
+    plt.close()
+
+    return path
+
+
+# =========================================================
+# PASS FAIL CHART
+# =========================================================
+
+def create_pass_fail_chart(df):
+
+    create_chart_folder()
+
+    pass_count = int(
+        (df["Status"] == "Pass").sum()
+    )
+
+    fail_count = int(
+        (df["Status"] == "Fail").sum()
+    )
+
+    labels = [
+        "Pass",
+        "Fail"
+    ]
+
+    values = [
+        pass_count,
+        fail_count
+    ]
+
+    plt.figure(figsize=(7, 7))
+
+    plt.pie(
+        values,
+        labels=labels,
+        autopct="%1.1f%%",
+        startangle=90
+    )
+
+    plt.title(
+        "Pass vs Fail"
+    )
+
+    plt.tight_layout()
+
+    path = os.path.join(
+        CHART_FOLDER,
+        "pass_fail.png"
+    )
+
+    plt.savefig(path)
+
+    plt.close()
+
+    return path
+
+
+# =========================================================
+# GRADE DISTRIBUTION CHART
+# =========================================================
+
+def create_grade_chart(df):
+
+    create_chart_folder()
+
+    grade_order = [
+        "A+",
+        "A",
+        "B+",
+        "B",
+        "C+",
+        "C",
+        "F"
+    ]
 
     grade_counts = (
         df["Grade"]
         .value_counts()
-        .sort_index()
+        .reindex(
+            grade_order,
+            fill_value=0
+        )
     )
 
+    plt.figure(figsize=(9, 6))
+
+    plt.bar(
+        grade_counts.index,
+        grade_counts.values
+    )
+
+    plt.title(
+        "Grade Distribution"
+    )
+
+    plt.xlabel("Grade")
+
+    plt.ylabel("Number of Students")
+
+    plt.tight_layout()
+
+    path = os.path.join(
+        CHART_FOLDER,
+        "grade_distribution.png"
+    )
+
+    plt.savefig(path)
+
+    plt.close()
+
+    return path
+
+
+# =========================================================
+# CREATE ALL CHARTS
+# =========================================================
+
+def create_all_charts(df):
+
     return {
-        "labels": grade_counts.index.tolist(),
-        "values": grade_counts.values.tolist()
+        "highest_marks": create_highest_marks_chart(df),
+
+        "student_performance": create_performance_chart(df),
+
+        "pass_fail": create_pass_fail_chart(df),
+
+        "grade_distribution": create_grade_chart(df)
     }
-
-
-# ==========================================
-# GRADE BAR CHART
-# ==========================================
-
-def grade_bar_chart(df):
-
-    return get_grade_data(df)
