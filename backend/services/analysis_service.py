@@ -15,6 +15,7 @@ def get_subjects(df):
         "Registration No.",
         "Name",
         "Date of Birth",
+        "Date_of_Birth",
         "DOB",
         "SGPA",
         "Grade",

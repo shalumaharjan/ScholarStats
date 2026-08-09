@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import axiosInstance from "../utils/axiosInstance";
 
 import {
   BarChart3,
@@ -31,56 +32,120 @@ import {
 
 function Dashboard() {
   const [chartType, setChartType] = useState("bar");
+  const [semesterPerformance, setSemesterPerformance] = useState([]);
+  const [recentActivities, setRecentActivities] = useState([]);
+
+  const [dashboardSummary, setDashboardSummary] = useState({
+    total_students: 0,
+    semesters_tracked: 0,
+    result_files: 0,
+    fetch_jobs: 0,
+    average_pass_rate: 0,
+    total_backlogs: 0,
+  });
+
+  const [dashboardLoading, setDashboardLoading] = useState(true);
+
+  const fetchDashboardSummary = async () => {
+    try {
+      const response = await axiosInstance.get("/api/dashboard/summary");
+
+      setDashboardSummary(response.data);
+    } catch (error) {
+      console.error("Dashboard summary error:", error);
+    } finally {
+      setDashboardLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchDashboardSummary();
+    fetchSemesterPerformance();
+    fetchDashboardOverview();
+    fetchRecentActivities();
+  }, []);
 
   const summaryCards = [
     {
       title: "Total Students",
-      value: "320",
-      description: "Across all semesters",
+      value: dashboardSummary.total_students,
+      description: "Unique students tracked",
       icon: Users,
     },
     {
       title: "Semesters Tracked",
-      value: "8",
-      description: "1st to 8th semester",
+      value: dashboardSummary.semesters_tracked,
+      description: "Semesters with uploaded data",
       icon: GraduationCap,
     },
     {
       title: "Result Files",
-      value: "12",
-      description: "Uploaded files",
+      value: dashboardSummary.result_files,
+      description: "Generated result files",
       icon: FileText,
     },
     {
       title: "Fetch Jobs",
-      value: "6",
+      value: dashboardSummary.fetch_jobs,
       description: "Total fetch operations",
       icon: CloudDownload,
     },
     {
       title: "Average Pass Rate",
-      value: "82.5%",
-      description: "Department average",
+      value: `${dashboardSummary.average_pass_rate}%`,
+      description: "Across analyzed results",
       icon: BarChart3,
     },
     {
       title: "Total Backlogs",
-      value: "91",
+      value: dashboardSummary.total_backlogs,
       description: "Across all semesters",
       icon: BookOpen,
     },
   ];
 
-  const semesterPerformance = [
-    { semester: "1st Sem", passRate: 78 },
-    { semester: "2nd Sem", passRate: 81 },
-    { semester: "3rd Sem", passRate: 75 },
-    { semester: "4th Sem", passRate: 84 },
-    { semester: "5th Sem", passRate: 80 },
-    { semester: "6th Sem", passRate: 86 },
-    { semester: "7th Sem", passRate: 83 },
-    { semester: "8th Sem", passRate: 88 },
-  ];
+  const fetchSemesterPerformance = async () => {
+    try {
+      const response = await axiosInstance.get(
+        "/api/dashboard/semester-performance",
+      );
+
+      setSemesterPerformance(response.data);
+    } catch (error) {
+      console.error("Semester performance error:", error);
+    }
+  };
+
+  const [dashboardOverview, setDashboardOverview] = useState({
+    program: "",
+    academic_year: "",
+    semesters_tracked: 0,
+    last_updated: null,
+  });
+
+  const formatActivityDate = (timestamp) => {
+    if (!timestamp) {
+      return {
+        date: "—",
+        time: "—",
+      };
+    }
+
+    const date = new Date(timestamp);
+
+    return {
+      date: date.toLocaleDateString("en-US", {
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+      }),
+
+      time: date.toLocaleTimeString("en-US", {
+        hour: "2-digit",
+        minute: "2-digit",
+      }),
+    };
+  };
 
   const chartColors = [
     "#007bff",
@@ -92,37 +157,27 @@ function Dashboard() {
     "#fd7e14",
     "#6c757d",
   ];
+  const fetchRecentActivities = async () => {
+    try {
+      const response = await axiosInstance.get(
+        "/api/dashboard/recent-activities",
+      );
 
-  const recentActivities = [
-    {
-      activity: "BCA Sixth Semester file uploaded",
-      status: "Completed",
-      date: "1 July 2026",
-      time: "10:15 AM",
-      icon: UploadCloud,
-    },
-    {
-      activity: "Spring 2025 result fetch started",
-      status: "Processing",
-      date: "1 July 2026",
-      time: "09:45 AM",
-      icon: CloudDownload,
-    },
-    {
-      activity: "Semester analysis generated",
-      status: "Completed",
-      date: "1 July 2026",
-      time: "09:20 AM",
-      icon: PieChartIcon,
-    },
-    {
-      activity: "PDF report exported",
-      status: "Completed",
-      date: "30 June 2026",
-      time: "04:30 PM",
-      icon: FileText,
-    },
-  ];
+      setRecentActivities(response.data);
+    } catch (error) {
+      console.error("Recent activities error:", error);
+    }
+  };
+
+  const fetchDashboardOverview = async () => {
+    try {
+      const response = await axiosInstance.get("/api/dashboard/overview");
+
+      setDashboardOverview(response.data);
+    } catch (error) {
+      console.error("Dashboard overview error:", error);
+    }
+  };
 
   const renderPerformanceChart = () => {
     const commonTooltipStyle = {
@@ -312,6 +367,17 @@ function Dashboard() {
     );
   };
 
+  const formatLastUpdated = (date) => {
+    if (!date) return "—";
+    return new Date(date).toLocaleString("en-US", {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
+
   return (
     <>
       {/* Department overview */}
@@ -326,19 +392,24 @@ function Dashboard() {
               <p className="font-voces text-xs text-secondary">Department</p>
 
               <h2 className="mt-1 font-raleway text-lg font-bold text-gray-900">
-                Bachelor of Computer Application BCA
+                {dashboardOverview.program || "—"}
               </h2>
 
               <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-secondary">
                 <span>
-                  Academic Year: <strong className="text-gray-900">2025</strong>
+                  Academic Year:{" "}
+                  <strong className="text-gray-900">
+                    {dashboardOverview.academic_year || "—"}
+                  </strong>
                 </span>
 
                 <span className="hidden text-gray-300 sm:inline">|</span>
 
                 <span>
                   Total Semesters Tracked:{" "}
-                  <strong className="text-gray-900">8</strong>
+                  <strong className="text-gray-900">
+                    {dashboardOverview.semesters_tracked}
+                  </strong>
                 </span>
               </div>
             </div>
@@ -348,12 +419,11 @@ function Dashboard() {
             <p className="font-voces text-xs text-secondary">Last Updated</p>
 
             <p className="mt-1 text-sm font-bold text-gray-800">
-              1 July 2026, 10:30 AM
+              {formatLastUpdated(dashboardOverview.last_updated)}
             </p>
           </div>
         </div>
       </div>
-
       {/* Summary cards */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
         {summaryCards.map((card) => {
@@ -371,7 +441,7 @@ function Dashboard() {
                   </p>
 
                   <h3 className="mt-2 font-raleway text-3xl font-extrabold text-gray-900">
-                    {card.value}
+                    {dashboardLoading ? "..." : card.value}
                   </h3>
 
                   <p className="mt-1 font-voces text-sm text-secondary">
@@ -387,7 +457,6 @@ function Dashboard() {
           );
         })}
       </div>
-
       {/* Semester performance chart */}
       <div className="mt-5 overflow-hidden rounded-xl border border-gray-200 bg-white">
         <div className="flex flex-col gap-4 border-b border-gray-200 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
@@ -444,7 +513,6 @@ function Dashboard() {
           {renderPerformanceChart()}
         </div>
       </div>
-
       {/* Recent activity */}
       <div className="mt-5 rounded-xl border border-gray-200 bg-white">
         <div className="flex items-center justify-between gap-4 border-b border-gray-200 px-5 py-4">
@@ -489,12 +557,19 @@ function Dashboard() {
             </thead>
 
             <tbody>
-              {recentActivities.map((item) => {
-                const Icon = item.icon;
+              {recentActivities.map((item, index) => {
+                const Icon =
+                  item.type === "upload"
+                    ? UploadCloud
+                    : item.type === "fetch"
+                      ? CloudDownload
+                      : FileText;
+
+                const { date, time } = formatActivityDate(item.timestamp);
 
                 return (
                   <tr
-                    key={item.activity}
+                    key={`${item.type}-${item.timestamp}-${index}`}
                     className="border-b border-gray-100 transition-colors last:border-b-0 hover:bg-gray-50"
                   >
                     <td className="px-5 py-3.5">
@@ -512,12 +587,16 @@ function Dashboard() {
                     <td className="px-5 py-3.5">
                       <span
                         className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-bold ${
-                          item.status === "Completed"
+                          item.status === "Completed" ||
+                          item.status === "Uploaded"
                             ? "border-green-200 bg-green-50 text-green-700"
-                            : "border-blue-200 bg-blue-50 text-primary"
+                            : item.status === "Failed"
+                              ? "border-red-200 bg-red-50 text-red-600"
+                              : "border-blue-200 bg-blue-50 text-primary"
                         }`}
                       >
-                        {item.status === "Completed" ? (
+                        {item.status === "Completed" ||
+                        item.status === "Uploaded" ? (
                           <CheckCircle size={13} />
                         ) : (
                           <Clock size={13} />
@@ -528,11 +607,11 @@ function Dashboard() {
                     </td>
 
                     <td className="px-5 py-3.5 text-sm text-secondary">
-                      {item.date}
+                      {date}
                     </td>
 
                     <td className="px-5 py-3.5 text-sm text-secondary">
-                      {item.time}
+                      {time}
                     </td>
                   </tr>
                 );
