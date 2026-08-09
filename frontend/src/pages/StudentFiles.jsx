@@ -655,6 +655,9 @@ function StudentFiles() {
 
                         <button
                           type="button"
+                          onClick={() =>
+                            navigate(`/fetch-result?fileId=${file.file_id}`)
+                          }
                           className="flex items-center gap-1.5 rounded-md border border-green-200 px-3 py-2 text-xs font-bold text-green-700 transition hover:bg-green-50"
                         >
                           <Send size={13} />

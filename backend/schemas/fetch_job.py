@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 
 class FetchJobRequest(BaseModel):
-    studentFileId: str
+    studentFileId: int
     resultType: str
     semester: str
     academicYear: str
