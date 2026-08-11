@@ -457,7 +457,7 @@ function StudentFiles() {
               className="flex w-full items-center justify-center gap-2 rounded-lg bg-primary px-5 py-3 text-sm font-bold text-white transition hover:bg-[#0069d9] focus:outline-none focus:ring-2 focus:ring-blue-300 sm:w-auto"
             >
               <UploadCloud size={18} />
-              Upload and Extract Records
+              Upload Records
             </button>
           </div>
 

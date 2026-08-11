@@ -34,6 +34,7 @@ function Login() {
   const handleLogin = async (event) => {
     event.preventDefault();
 
+<<<<<<< Updated upstream
     if (!validateForm()) {
       return;
     }
@@ -58,6 +59,24 @@ function Login() {
       toast.error(
         error.response?.data?.detail || "Invalid username or password.",
       );
+=======
+    if (!validateForm()) return;
+
+    try {
+      setIsLoggingIn(true);
+
+      const res = await login(username.trim(), password);
+
+      // Save the token so it can be attached to future requests
+      localStorage.setItem("token", res.access_token);
+
+      toast.success("Login successful!");
+
+      navigate("/dashboard", { replace: true });
+    } catch (error) {
+      console.error("Login error:", error);
+      toast.error("Login failed");
+>>>>>>> Stashed changes
     } finally {
       setIsLoggingIn(false);
     }
@@ -226,6 +245,19 @@ function Login() {
                 </>
               )}
             </button>
+
+            {/* register button */}
+            <div className="mt-4 text-center">
+              <p className="text-sm text-gray-600">Don't have an account?</p>
+
+              <button
+                type="button"
+                onClick={() => navigate("/register")}
+                className="mt-2 font-bold text-primary hover:underline"
+              >
+                Create Account
+              </button>
+            </div>
           </form>
         </div>
       </div>

@@ -14,6 +14,7 @@ import Reports from "../pages/Reports";
 import ProtectedLayout from "../pages/ProtectedLayout";
 import DashboardLayout from "../components/common/DashboardLayout";
 import StudentRecords from "../pages/StudentRecords";
+import Register from "../pages/auth/Register/Register";
 
 function AppRoutes() {
   return (
@@ -21,6 +22,7 @@ function AppRoutes() {
       {/* Public routes */}
       <Route path="/" element={<Navigate to="/login" replace />} />
       <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<Register />} />
 
       {/* Protected routes */}
       <Route element={<ProtectedLayout />}>

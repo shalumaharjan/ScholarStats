@@ -81,6 +81,59 @@ function FetchStatus() {
     return "bg-yellow-50 text-yellow-700 border-yellow-200";
   };
 
+  const getReadableMessage = (message, status) => {
+    if (status === "Success") {
+      return "Result fetched successfully.";
+    }
+
+    if (status === "Processing") {
+      return "Fetching result...";
+    }
+
+    if (status === "Pending") {
+      return "Waiting to fetch.";
+    }
+
+    if (!message) {
+      return status === "Failed" ? "Result fetch failed." : "—";
+    }
+
+    const error = String(message).toLowerCase();
+
+    if (error.includes("timeout") || error.includes("timed out")) {
+      return "Portal response timed out.";
+    }
+
+    if (
+      error.includes("no such element") ||
+      error.includes("unable to locate")
+    ) {
+      return "Required portal field not found.";
+    }
+
+    if (
+      error.includes("connection") ||
+      error.includes("net::") ||
+      error.includes("connection refused")
+    ) {
+      return "Unable to connect to portal.";
+    }
+
+    if (error.includes("login") || error.includes("credential")) {
+      return "Portal login failed.";
+    }
+
+    if (
+      error.includes("webdriver") ||
+      error.includes("chrome") ||
+      error.includes("session")
+    ) {
+      return "Browser automation failed.";
+    }
+
+    return "Result fetch failed.";
+  };
+
   return (
     <>
       {/* Current fetch job */}
@@ -230,7 +283,7 @@ function FetchStatus() {
                   </td>
 
                   <td className="px-5 py-3.5 text-sm text-secondary">
-                    {record.message}
+                    {getReadableMessage(record.message, record.status)}
                   </td>
 
                   <td className="px-5 py-3.5 text-sm font-bold text-gray-800">

@@ -20,10 +20,10 @@ function FetchResult() {
 
   const [formData, setFormData] = useState({
     studentFileId: "",
-    resultType: "Regular/Retake",
-    semester: "Sixth",
-    academicYear: "2025",
-    academicSession: "Spring",
+    resultType: "",
+    semester: "",
+    academicYear: "",
+    academicSession: "",
   });
 
   const fetchStudentFiles = async () => {
@@ -87,27 +87,52 @@ function FetchResult() {
   };
 
   const handleFetchResult = async () => {
-    if (!formData.studentFileId) {
-      alert("Please select a student file first.");
+    if (
+      !formData.studentFileId ||
+      !formData.resultType ||
+      !formData.semester ||
+      !formData.academicYear ||
+      !formData.academicSession
+    ) {
+      alert("Please complete all fetch details.");
       return;
     }
 
     try {
       setFetching(true);
+
       const response = await axiosInstance.post("/fetch-jobs", formData);
-      alert(response.data.message || "Result fetch process started.");
+
+      toast.success(
+        response.data.message || "Result fetch started successfully.",
+        {
+          position: "top-right",
+          autoClose: 2000,
+        },
+      );
+
       navigate(`/fetch-status?jobId=${response.data.fetchJobId}`);
     } catch (error) {
       console.error("Fetch job error:", error);
 
-      alert(
-        error.response?.data?.message ||
-          "Something went wrong while starting result fetch.",
+      toast.error(
+        error.response?.data?.message || "Unable to start result fetch.",
+        {
+          position: "top-right",
+          autoClose: 3000,
+        },
       );
     } finally {
       setFetching(false);
     }
   };
+
+  const isFormComplete =
+    formData.studentFileId &&
+    formData.resultType &&
+    formData.semester &&
+    formData.academicYear &&
+    formData.academicSession;
 
   return (
     <>
@@ -143,9 +168,11 @@ function FetchResult() {
                 disabled={loadingFiles}
                 className="w-full rounded-lg border border-gray-300 bg-white px-3.5 py-3 text-sm text-gray-800 outline-none transition focus:border-primary focus:ring-2 focus:ring-blue-100 disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-500"
               >
-                {studentFiles.length === 0 && (
-                  <option value="">No ready student files available</option>
-                )}
+                <option value="">
+                  {studentFiles.length === 0
+                    ? "No ready student files available"
+                    : "Select a student file"}
+                </option>
 
                 {studentFiles.map((file) => (
                   <option key={file.file_id} value={file.file_id}>
@@ -183,6 +210,7 @@ function FetchResult() {
                 disabled={fetching}
                 className="w-full rounded-lg border border-gray-300 bg-white px-3.5 py-3 text-sm text-gray-800 outline-none transition focus:border-primary focus:ring-2 focus:ring-blue-100 disabled:cursor-not-allowed disabled:bg-gray-100"
               >
+                <option value="">Select result type</option>
                 <option>Regular/Retake</option>
                 <option>Rechecking/Retotaling</option>
                 <option>Chance</option>
@@ -206,6 +234,7 @@ function FetchResult() {
                 disabled={fetching}
                 className="w-full rounded-lg border border-gray-300 bg-white px-3.5 py-3 text-sm text-gray-800 outline-none transition focus:border-primary focus:ring-2 focus:ring-blue-100 disabled:cursor-not-allowed disabled:bg-gray-100"
               >
+                <option value="">Select semester</option>
                 <option>First</option>
                 <option>Second</option>
                 <option>Third</option>
@@ -234,6 +263,7 @@ function FetchResult() {
                 disabled={fetching}
                 className="w-full rounded-lg border border-gray-300 bg-white px-3.5 py-3 text-sm text-gray-800 outline-none transition focus:border-primary focus:ring-2 focus:ring-blue-100 disabled:cursor-not-allowed disabled:bg-gray-100"
               >
+                <option value="">Select academic year</option>
                 <option>2024</option>
                 <option>2025</option>
                 <option>2026</option>
@@ -257,6 +287,7 @@ function FetchResult() {
                 disabled={fetching}
                 className="w-full rounded-lg border border-gray-300 bg-white px-3.5 py-3 text-sm text-gray-800 outline-none transition focus:border-primary focus:ring-2 focus:ring-blue-100 disabled:cursor-not-allowed disabled:bg-gray-100"
               >
+                <option value="">Select academic session</option>
                 <option>Spring</option>
                 <option>Fall</option>
                 <option>Winter</option>
@@ -278,7 +309,7 @@ function FetchResult() {
             <button
               type="button"
               onClick={handleFetchResult}
-              disabled={fetching || loadingFiles || !formData.studentFileId}
+              disabled={fetching || loadingFiles || !isFormComplete}
               className="flex w-full items-center justify-center gap-2 rounded-lg bg-primary px-5 py-3 text-sm font-bold text-white transition hover:bg-[#0069d9] focus:outline-none focus:ring-2 focus:ring-blue-300 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
             >
               {fetching ? (
