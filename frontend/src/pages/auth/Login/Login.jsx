@@ -31,30 +31,29 @@ function Login() {
     return !newErrors.username && !newErrors.password;
   };
 
+  const handleLogin = async (event) => {
+    event.preventDefault();
 
-const handleLogin = async (event) => {
-  event.preventDefault();
+    if (!validateForm()) return;
 
-  if (!validateForm()) return;
+    try {
+      setIsLoggingIn(true);
 
-try {
-  setIsLoggingIn(true);
+      const res = await login(username.trim(), password);
 
-  const res = await login(username.trim(), password);
+      // Save the token so it can be attached to future requests
+      localStorage.setItem("token", res.access_token);
 
-  // Save the token so it can be attached to future requests
-  localStorage.setItem("token", res.access_token);
+      toast.success("Login successful!");
 
-  toast.success("Login successful!");
-
-  navigate("/dashboard", { replace: true });
-} catch (error) {
-  console.error("Login error:", error);
-  toast.error("Login failed");
-} finally {
-  setIsLoggingIn(false);
-}
-}
+      navigate("/dashboard", { replace: true });
+    } catch (error) {
+      console.error("Login error:", error);
+      toast.error("Login failed");
+    } finally {
+      setIsLoggingIn(false);
+    }
+  };
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-100 px-4 font-biryani">
@@ -219,6 +218,19 @@ try {
                 </>
               )}
             </button>
+
+            {/* register button */}
+            <div className="mt-4 text-center">
+              <p className="text-sm text-gray-600">Don't have an account?</p>
+
+              <button
+                type="button"
+                onClick={() => navigate("/register")}
+                className="mt-2 font-bold text-primary hover:underline"
+              >
+                Create Account
+              </button>
+            </div>
           </form>
         </div>
       </div>

@@ -1,5 +1,4 @@
 # This is related with the config/settings.py
-
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
@@ -12,13 +11,19 @@ class HeadlessResultChecker:
         self.options = webdriver.ChromeOptions()
 
         if headless:
-            self.options.add_argument("--headless")
+            self.options.add_argument("--headless=new")
 
         self.options.add_argument("--no-sandbox")
         self.options.add_argument("--disable-dev-shm-usage")
 
-        self.driver = webdriver.Chrome(options=self.options)
-        self.wait = WebDriverWait(self.driver, settings.TIMEOUT)
+        self.driver = webdriver.Chrome(
+            options=self.options
+        )
+
+        self.wait = WebDriverWait(
+            self.driver,
+            settings.TIMEOUT
+        )
 
     def check_result(self, student_data):
         try:

@@ -11,7 +11,7 @@ class Settings(BaseSettings):
 
     # 🌐 Scraper
     LOGIN_URL: str = "https://exam.pu.edu.np:9094/"
-    TIMEOUT: int = 10
+    TIMEOUT: int = 1
     HEADLESS: bool = False
 
     class Config:

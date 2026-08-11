@@ -33,7 +33,7 @@ import {
 function Dashboard() {
   const [chartType, setChartType] = useState("bar");
   const [semesterPerformance, setSemesterPerformance] = useState([]);
-  const [recentActivities, setRecentActivities] = useState([]);
+  // const [recentActivities, setRecentActivities] = useState([]);
 
   const [dashboardSummary, setDashboardSummary] = useState({
     total_students: 0,
@@ -62,7 +62,7 @@ function Dashboard() {
     fetchDashboardSummary();
     fetchSemesterPerformance();
     fetchDashboardOverview();
-    fetchRecentActivities();
+    // fetchRecentActivities();
   }, []);
 
   const summaryCards = [
@@ -157,17 +157,17 @@ function Dashboard() {
     "#fd7e14",
     "#6c757d",
   ];
-  const fetchRecentActivities = async () => {
-    try {
-      const response = await axiosInstance.get(
-        "/api/dashboard/recent-activities",
-      );
+  // const fetchRecentActivities = async () => {
+  //   try {
+  //     const response = await axiosInstance.get(
+  //       "/api/dashboard/recent-activities",
+  //     );
 
-      setRecentActivities(response.data);
-    } catch (error) {
-      console.error("Recent activities error:", error);
-    }
-  };
+  //     setRecentActivities(response.data);
+  //   } catch (error) {
+  //     console.error("Recent activities error:", error);
+  //   }
+  // };
 
   const fetchDashboardOverview = async () => {
     try {
@@ -514,7 +514,7 @@ function Dashboard() {
         </div>
       </div>
       {/* Recent activity */}
-      <div className="mt-5 rounded-xl border border-gray-200 bg-white">
+      {/* <div className="mt-5 rounded-xl border border-gray-200 bg-white">
         <div className="flex items-center justify-between gap-4 border-b border-gray-200 px-5 py-4">
           <div>
             <h2 className="font-raleway text-lg font-bold text-gray-900">
@@ -619,7 +619,7 @@ function Dashboard() {
             </tbody>
           </table>
         </div>
-      </div>
+      </div> */}
     </>
   );
 }
